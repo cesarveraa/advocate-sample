@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   Menu,
   X,
@@ -207,12 +208,31 @@ export default function DixitLawTemplate() {
   const observerRef = useRef<IntersectionObserver | null>(null)
   const [entityType, setEntityType] = useState<"firm" | "person">("firm")
   const [isDark, setIsDark] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const searchParams = useSearchParams()
+  const code = searchParams.get("code")
 
   useEffect(() => {
-    // Load content.json
-    fetch("/content.json")
-      .then((res) => res.json())
-      .then((data: ContentData) => {
+    if (!code) {
+      setError("Código de perfil no proporcionado")
+      setLoading(false)
+      return
+    }
+
+    // Load content from API
+    fetch(`http://localhost:8000/lawyers/${code}`)
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 404) {
+            throw new Error("Perfil no encontrado")
+          }
+          throw new Error("Error al cargar el perfil")
+        }
+        return res.json()
+      })
+      .then(({ data }: { data: ContentData }) => {
         setContent(data)
         setEntityType(data.settings.entityType)
         setCurrentLanguage(data.settings.defaultLanguage)
@@ -220,15 +240,22 @@ export default function DixitLawTemplate() {
         // Set initial theme
         if (data.settings.theme === "dark") {
           setIsDark(true)
+        } else if (data.settings.theme === "light") {
+          setIsDark(false)
         } else if (data.settings.theme === "auto") {
           setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches)
         }
 
         // Analytics - increment visitor count
         incrementVisitorCount()
+        setLoading(false)
       })
-      .catch((err) => console.error("Error loading content:", err))
-  }, [])
+      .catch((err) => {
+        console.error("Error loading content:", err)
+        setError(err.message)
+        setLoading(false)
+      })
+  }, [code])
 
   useEffect(() => {
     // Setup Intersection Observer for animations
@@ -317,13 +344,52 @@ export default function DixitLawTemplate() {
     localStorage.setItem("theme", !isDark ? "dark" : "auto")
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando perfil...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Error</h1>
+          <p className="text-gray-600 mb-8">{error}</p>
+          <Button onClick={() => (window.location.href = "/setup")}>Crear nuevo perfil</Button>
+        </div>
+      </div>
+    )
+  }
+
   if (!content) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Perfil no encontrado</h1>
+          <p className="text-gray-600 mb-8">El perfil que buscas no existe o ha sido eliminado.</p>
+          <Button onClick={() => (window.location.href = "/setup")}>Crear nuevo perfil</Button>
+        </div>
+      </div>
+    )
   }
 
   const currentContent = getCurrentContent()
   if (!currentContent) {
-    return <div className="flex items-center justify-center min-h-screen">Content not available</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contenido no disponible</h1>
+          <p className="text-gray-600 mb-8">El contenido para este idioma no está disponible.</p>
+          <Button onClick={() => (window.location.href = "/setup")}>Crear nuevo perfil</Button>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,8 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
-import { Check, ChevronLeft, ChevronRight, Download, Upload, ImageIcon, Trash2, Plus } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, Upload, ImageIcon, Trash2, Plus } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { nanoid } from 'nanoid/non-secure'
 
 interface ContentData {
   settings: {
@@ -534,6 +536,9 @@ export default function SetupWizard() {
   const [saveStatus, setSaveStatus] = useState("")
   const [imageUploads, setImageUploads] = useState<Record<string, File | null>>({})
   const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const router = useRouter()
 
   const handleImageUpload = (path: string[], event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -596,19 +601,50 @@ export default function SetupWizard() {
     setContentData(newData)
   }
 
-  const exportContent = () => {
-    const dataStr = JSON.stringify(contentData, null, 2)
-    const dataBlob = new Blob([dataStr], { type: "application/json" })
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "content.json"
-    link.click()
-    URL.revokeObjectURL(url)
+  const createProfile = async () => {
+  setIsSubmitting(true)
+  setSaveStatus("Creando perfil...")
 
-    setSaveStatus("¡Configuración exportada con éxito!")
-    setTimeout(() => setSaveStatus(""), 3000)
+  // 1) Construye tu payload aquí para imprimírtelo
+  const payload = {
+    code: nanoid(8),       // genera un código de 8 caracteres
+    data: contentData,
   }
+  console.log("▶️ Payload enviado a /lawyers/:", payload)
+
+  try {
+    const response = await fetch("http://localhost:8000/lawyers/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+
+    console.log("🔔 Status HTTP:", response.status, response.statusText)
+    const text = await response.text()
+    console.log("📝 Body raw de la respuesta:", text)
+
+    if (!response.ok) {
+      // 2) Intenta parsear JSON de error (si viene JSON)
+      let errJson: any
+      try { errJson = JSON.parse(text) } catch {}
+      console.error("❌ Error details from server:", errJson)
+      throw new Error("Error al crear el perfil")
+    }
+
+    const profile = JSON.parse(text)
+    console.log("✅ Perfil creado:", profile)
+    setSaveStatus("¡Perfil creado con éxito!")
+
+    setTimeout(() => {
+      router.push(`/?code=${profile.code}`)
+    }, 1500)
+  } catch (error) {
+    console.error("🚨 Exception en createProfile:", error)
+    setSaveStatus("Error al crear el perfil. Inténtalo de nuevo.")
+    setIsSubmitting(false)
+  }
+}
+
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
@@ -658,7 +694,11 @@ export default function SetupWizard() {
             </Select>
           </div>
 
-          {saveStatus && <span className="text-sm text-green-600 font-medium">{saveStatus}</span>}
+          {saveStatus && (
+            <span className={`text-sm font-medium ${saveStatus.includes("Error") ? "text-red-600" : "text-green-600"}`}>
+              {saveStatus}
+            </span>
+          )}
         </div>
 
         <Card className="mb-8">
@@ -834,7 +874,8 @@ export default function SetupWizard() {
                             <img
                               src={
                                 previewUrls[["content", activeLanguage, "hero", "backgroundImage"].join(".")] ||
-                                currentContent.hero.backgroundImage
+                                currentContent.hero.backgroundImage ||
+                                "/placeholder.svg"
                               }
                               alt="Portada"
                               className="w-full h-full object-cover"
@@ -919,7 +960,8 @@ export default function SetupWizard() {
                                 <img
                                   src={
                                     previewUrls[["content", activeLanguage, "person", "photo"].join(".")] ||
-                                    currentContent.person.photo
+                                    currentContent.person.photo ||
+                                    "/placeholder.svg"
                                   }
                                   alt="Foto de perfil"
                                   className="w-full h-full object-cover"
@@ -1208,7 +1250,7 @@ export default function SetupWizard() {
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
-                                  <Image className="w-6 h-6 text-gray-400" />
+                                  <ImageIcon className="w-6 h-6 text-gray-400" />
                                 )}
                               </div>
                             </div>
@@ -1757,8 +1799,7 @@ export default function SetupWizard() {
                 <div>
                   <h2 className="text-2xl font-semibold mb-4">¡Configuración Completada!</h2>
                   <p className="text-gray-600 mb-6">
-                    Has completado la configuración de tu sitio web legal. Ahora puedes descargar el archivo de
-                    configuración.
+                    Has completado la configuración de tu sitio web legal. Ahora crearemos tu perfil.
                   </p>
                 </div>
 
@@ -1783,14 +1824,23 @@ export default function SetupWizard() {
                 </div>
 
                 <div className="space-y-4">
-                  <Button onClick={exportContent} className="w-full bg-green-600 hover:bg-green-700">
-                    <Download className="w-4 h-4 mr-2" />
-                    Descargar Configuración (content.json)
+                  <Button
+                    onClick={createProfile}
+                    disabled={isSubmitting}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Creando perfil...
+                      </>
+                    ) : (
+                      "Crear mi perfil"
+                    )}
                   </Button>
 
                   <p className="text-sm text-gray-500">
-                    Guarda este archivo y úsalo para configurar tu sitio web. También puedes volver a este formulario
-                    más tarde para hacer cambios.
+                    Se creará tu perfil y serás redirigido a tu sitio web personalizado.
                   </p>
                 </div>
               </div>
@@ -1815,9 +1865,15 @@ export default function SetupWizard() {
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
-            <Button onClick={exportContent} className="bg-green-600 hover:bg-green-700">
-              <Download className="w-4 h-4 mr-2" />
-              Finalizar
+            <Button onClick={createProfile} disabled={isSubmitting} className="bg-green-600 hover:bg-green-700">
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Creando...
+                </>
+              ) : (
+                "Crear Perfil"
+              )}
             </Button>
           )}
         </div>
@@ -1825,3 +1881,4 @@ export default function SetupWizard() {
     </div>
   )
 }
+
