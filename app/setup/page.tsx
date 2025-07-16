@@ -1,45 +1,59 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { Progress } from "@/components/ui/progress"
-import { Check, ChevronLeft, ChevronRight, Upload, ImageIcon, Trash2, Plus } from "lucide-react"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { nanoid } from 'nanoid/non-secure'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Upload,
+  ImageIcon,
+  Trash2,
+  Plus,
+} from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { nanoid } from "nanoid/non-secure";
 
 interface ContentData {
   settings: {
-    theme: string
-    enableDarkModeToggle: boolean
-    defaultLanguage: string
-    languages: string[]
-    entityType: "firm" | "person"
-  }
+    theme: string;
+    enableDarkModeToggle: boolean;
+    defaultLanguage: string;
+    languages: string[];
+    entityType: "firm" | "person";
+  };
   styling: {
-    light: Record<string, string>
-    dark: Record<string, string>
-    fontFamily: string
-    fontSize: Record<string, string>
-  }
+    light: Record<string, string>;
+    dark: Record<string, string>;
+    fontFamily: string;
+    fontSize: Record<string, string>;
+  };
   analytics: {
-    visitorCount: number
-    visitorLocations: string[]
-    pageClicks: Record<string, number>
-    contactClicks: Record<string, number>
-  }
+    visitorCount: number;
+    visitorLocations: string[];
+    pageClicks: Record<string, number>;
+    contactClicks: Record<string, number>;
+  };
   content: {
-    [key: string]: any
-  }
+    [key: string]: any;
+  };
 }
 
 const defaultContent: ContentData = {
@@ -122,7 +136,8 @@ const defaultContent: ContentData = {
           {
             icon: "/placeholder.svg?height=60&width=60",
             title: "Derecho Empresarial",
-            description: "Asesoría en derecho corporativo y transacciones comerciales.",
+            description:
+              "Asesoría en derecho corporativo y transacciones comerciales.",
             buttonText: "Conoce más",
             buttonLink: "#services",
           },
@@ -160,17 +175,20 @@ const defaultContent: ContentData = {
           {
             dateRange: "2010–2015",
             role: "Asociado Junior en Firma XYZ",
-            details: "Participó en juicios civiles y asesoró a pequeñas empresas en contratos.",
+            details:
+              "Participó en juicios civiles y asesoró a pequeñas empresas en contratos.",
           },
           {
             dateRange: "2015–2020",
             role: "Socio en Firma ABC",
-            details: "Dirigió el departamento de litigios y obtuvo veredictos exitosos en casos de alto perfil.",
+            details:
+              "Dirigió el departamento de litigios y obtuvo veredictos exitosos en casos de alto perfil.",
           },
           {
             dateRange: "2020–Presente",
             role: "Abogado Independiente",
-            details: "Presta servicios a clientes en transacciones inmobiliarias, fusiones y adquisiciones.",
+            details:
+              "Presta servicios a clientes en transacciones inmobiliarias, fusiones y adquisiciones.",
           },
         ],
         careerHighlights: [
@@ -259,11 +277,36 @@ const defaultContent: ContentData = {
       contact: {
         title: "Contáctanos",
         formFields: [
-          { label: "Nombre", type: "text", name: "name", placeholder: "Tu nombre" },
-          { label: "Correo", type: "email", name: "email", placeholder: "Tu correo" },
-          { label: "Teléfono", type: "tel", name: "phone", placeholder: "Tu teléfono" },
-          { label: "Asunto", type: "text", name: "subject", placeholder: "Asunto" },
-          { label: "Mensaje", type: "textarea", name: "message", placeholder: "Tu mensaje" },
+          {
+            label: "Nombre",
+            type: "text",
+            name: "name",
+            placeholder: "Tu nombre",
+          },
+          {
+            label: "Correo",
+            type: "email",
+            name: "email",
+            placeholder: "Tu correo",
+          },
+          {
+            label: "Teléfono",
+            type: "tel",
+            name: "phone",
+            placeholder: "Tu teléfono",
+          },
+          {
+            label: "Asunto",
+            type: "text",
+            name: "subject",
+            placeholder: "Asunto",
+          },
+          {
+            label: "Mensaje",
+            type: "textarea",
+            name: "message",
+            placeholder: "Tu mensaje",
+          },
         ],
         submitButtonText: "Enviar",
         location: {
@@ -293,9 +336,21 @@ const defaultContent: ContentData = {
       socialMedia: {
         title: "Síguenos en redes sociales",
         networks: [
-          { name: "Facebook", url: "https://facebook.com/mibufete", icon: "facebook" },
-          { name: "Twitter", url: "https://twitter.com/mibufete", icon: "twitter" },
-          { name: "LinkedIn", url: "https://linkedin.com/company/mibufete", icon: "linkedin" },
+          {
+            name: "Facebook",
+            url: "https://facebook.com/mibufete",
+            icon: "facebook",
+          },
+          {
+            name: "Twitter",
+            url: "https://twitter.com/mibufete",
+            icon: "twitter",
+          },
+          {
+            name: "LinkedIn",
+            url: "https://linkedin.com/company/mibufete",
+            icon: "linkedin",
+          },
         ],
         contactButton: "Contáctanos ahora",
         contactText: "¿Tienes alguna pregunta? Estamos aquí para ayudarte.",
@@ -367,17 +422,20 @@ const defaultContent: ContentData = {
           {
             dateRange: "2010–2015",
             role: "Junior Associate at XYZ Firm",
-            details: "Participated in civil trials and advised small businesses on contracts.",
+            details:
+              "Participated in civil trials and advised small businesses on contracts.",
           },
           {
             dateRange: "2015–2020",
             role: "Partner at ABC Firm",
-            details: "Led the litigation department and obtained successful verdicts in high-profile cases.",
+            details:
+              "Led the litigation department and obtained successful verdicts in high-profile cases.",
           },
           {
             dateRange: "2020–Present",
             role: "Independent Attorney",
-            details: "Provides services to clients in real estate transactions, mergers and acquisitions.",
+            details:
+              "Provides services to clients in real estate transactions, mergers and acquisitions.",
           },
         ],
         careerHighlights: [
@@ -466,11 +524,36 @@ const defaultContent: ContentData = {
       contact: {
         title: "Contact Us",
         formFields: [
-          { label: "Name", type: "text", name: "name", placeholder: "Your name" },
-          { label: "Email", type: "email", name: "email", placeholder: "Your email" },
-          { label: "Phone", type: "tel", name: "phone", placeholder: "Your phone" },
-          { label: "Subject", type: "text", name: "subject", placeholder: "Subject" },
-          { label: "Message", type: "textarea", name: "message", placeholder: "Your message" },
+          {
+            label: "Name",
+            type: "text",
+            name: "name",
+            placeholder: "Your name",
+          },
+          {
+            label: "Email",
+            type: "email",
+            name: "email",
+            placeholder: "Your email",
+          },
+          {
+            label: "Phone",
+            type: "tel",
+            name: "phone",
+            placeholder: "Your phone",
+          },
+          {
+            label: "Subject",
+            type: "text",
+            name: "subject",
+            placeholder: "Subject",
+          },
+          {
+            label: "Message",
+            type: "textarea",
+            name: "message",
+            placeholder: "Your message",
+          },
         ],
         submitButtonText: "Send",
         location: {
@@ -500,9 +583,21 @@ const defaultContent: ContentData = {
       socialMedia: {
         title: "Follow us on social media",
         networks: [
-          { name: "Facebook", url: "https://facebook.com/mylawfirm", icon: "facebook" },
-          { name: "Twitter", url: "https://twitter.com/mylawfirm", icon: "twitter" },
-          { name: "LinkedIn", url: "https://linkedin.com/company/mylawfirm", icon: "linkedin" },
+          {
+            name: "Facebook",
+            url: "https://facebook.com/mylawfirm",
+            icon: "facebook",
+          },
+          {
+            name: "Twitter",
+            url: "https://twitter.com/mylawfirm",
+            icon: "twitter",
+          },
+          {
+            name: "LinkedIn",
+            url: "https://linkedin.com/company/mylawfirm",
+            icon: "linkedin",
+          },
         ],
         contactButton: "Contact us now",
         contactText: "Have any questions? We're here to help.",
@@ -517,7 +612,7 @@ const defaultContent: ContentData = {
       },
     },
   },
-}
+};
 
 const steps = [
   "Configuración Básica",
@@ -527,147 +622,159 @@ const steps = [
   "Casos de Éxito",
   "Contacto",
   "Finalizar",
-]
+];
 
 export default function SetupWizard() {
-  const [currentStep, setCurrentStep] = useState(0)
-  const [contentData, setContentData] = useState<ContentData>(defaultContent)
-  const [activeLanguage, setActiveLanguage] = useState("es")
-  const [saveStatus, setSaveStatus] = useState("")
-  const [imageUploads, setImageUploads] = useState<Record<string, File | null>>({})
-  const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentStep, setCurrentStep] = useState(0);
+  const [contentData, setContentData] = useState<ContentData>(defaultContent);
+  const [activeLanguage, setActiveLanguage] = useState("es");
+  const [saveStatus, setSaveStatus] = useState("");
+  const [imageUploads, setImageUploads] = useState<Record<string, File | null>>(
+    {}
+  );
+  const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const router = useRouter()
+  const router = useRouter();
 
-  const handleImageUpload = (path: string[], event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+  const handleImageUpload = (
+    path: string[],
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     // Create a preview URL
-    const previewUrl = URL.createObjectURL(file)
-    setPreviewUrls((prev) => ({ ...prev, [path.join(".")]: previewUrl }))
+    const previewUrl = URL.createObjectURL(file);
+    setPreviewUrls((prev) => ({ ...prev, [path.join(".")]: previewUrl }));
 
     // Store the file for later processing
-    setImageUploads((prev) => ({ ...prev, [path.join(".")]: file }))
+    setImageUploads((prev) => ({ ...prev, [path.join(".")]: file }));
 
     // Update the path in the content data with a placeholder that will be replaced
     // In a real app, you would upload this to a server and get a URL back
-    updateNestedValue(path, previewUrl)
-  }
+    updateNestedValue(path, previewUrl);
+  };
 
   const updateNestedValue = (path: string[], value: any) => {
-    const newData = JSON.parse(JSON.stringify(contentData))
-    let current = newData
-
-    for (let i = 0; i < path.length - 1; i++) {
-      if (!current[path[i]]) {
-        current[path[i]] = {}
+    setContentData((prev) => {
+      const next = JSON.parse(JSON.stringify(prev));
+      let cur: any = next;
+      for (let i = 0; i < path.length - 1; i++) {
+        if (!cur[path[i]]) cur[path[i]] = {};
+        cur = cur[path[i]];
       }
-      current = current[path[i]]
-    }
-
-    current[path[path.length - 1]] = value
-    setContentData(newData)
-  }
+      cur[path[path.length - 1]] = value;
+      return next;
+    });
+  };
 
   const addArrayItem = (path: string[], template: any) => {
-    const newData = JSON.parse(JSON.stringify(contentData))
-    let current = newData
+    const newData = JSON.parse(JSON.stringify(contentData));
+    let current = newData;
 
     for (const key of path) {
-      current = current[key]
+      current = current[key];
     }
 
     if (Array.isArray(current)) {
-      current.push(JSON.parse(JSON.stringify(template)))
+      current.push(JSON.parse(JSON.stringify(template)));
     }
 
-    setContentData(newData)
-  }
+    setContentData(newData);
+  };
 
   const removeArrayItem = (path: string[], index: number) => {
-    const newData = JSON.parse(JSON.stringify(contentData))
-    let current = newData
+    const newData = JSON.parse(JSON.stringify(contentData));
+    let current = newData;
 
     for (const key of path) {
-      current = current[key]
+      current = current[key];
     }
 
     if (Array.isArray(current)) {
-      current.splice(index, 1)
+      current.splice(index, 1);
     }
 
-    setContentData(newData)
-  }
+    setContentData(newData);
+  };
 
-  const createProfile = async () => {
-  setIsSubmitting(true)
-  setSaveStatus("Creando perfil...")
+ // Al principio del fichero, carga la URL de la API desde .env
+const API_HOST = "http://localhost:8000";
 
-  // 1) Construye tu payload aquí para imprimírtelo
+async function createProfile() {
+  setIsSubmitting(true);
+  setSaveStatus("Creando perfil...");
+
   const payload = {
-    code: nanoid(8),       // genera un código de 8 caracteres
+    code: nanoid(8),
     data: contentData,
-  }
-  console.log("▶️ Payload enviado a /lawyers/:", payload)
+  };
+  console.log("▶️ Payload enviado a /lawyers/:", payload);
 
   try {
-    const response = await fetch("http://localhost:8000/lawyers/", {
+    const res = await fetch(`${API_HOST}/lawyers/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    })
+    });
 
-    console.log("🔔 Status HTTP:", response.status, response.statusText)
-    const text = await response.text()
-    console.log("📝 Body raw de la respuesta:", text)
+    console.log("🔔 Status HTTP:", res.status, res.statusText);
+    const text = await res.text();
+    console.log("📝 Body raw de la respuesta:", text);
 
-    if (!response.ok) {
-      // 2) Intenta parsear JSON de error (si viene JSON)
-      let errJson: any
+    if (!res.ok) {
+      let errJson = {};
       try { errJson = JSON.parse(text) } catch {}
-      console.error("❌ Error details from server:", errJson)
-      throw new Error("Error al crear el perfil")
+      console.error("❌ Error details from server:", errJson);
+      throw new Error("Error al crear el perfil");
     }
 
-    const profile = JSON.parse(text)
-    console.log("✅ Perfil creado:", profile)
-    setSaveStatus("¡Perfil creado con éxito!")
+    // Aquí ya no destructuramos { data }, porque tu servidor devuelve directamente { code, data }
+    const profile = JSON.parse(text) as { code: string; data: ContentData };
+    console.log("✅ Perfil creado:", profile);
 
+    setSaveStatus("¡Perfil creado con éxito!");
+
+    // Redirige usando el code que viene
     setTimeout(() => {
-      router.push(`/?code=${profile.code}`)
-    }, 1500)
-  } catch (error) {
-    console.error("🚨 Exception en createProfile:", error)
-    setSaveStatus("Error al crear el perfil. Inténtalo de nuevo.")
-    setIsSubmitting(false)
+      router.push(`/?code=${profile.code}`);
+    }, 1500);
+
+  } catch (e) {
+    console.error("🚨 Exception en createProfile:", e);
+    setSaveStatus("Error al crear el perfil. Inténtalo de nuevo.");
+    setIsSubmitting(false);
   }
 }
 
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
-      window.scrollTo(0, 0)
+      setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
     }
-  }
+  };
 
   const prevStep = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
-      window.scrollTo(0, 0)
+      setCurrentStep(currentStep - 1);
+      window.scrollTo(0, 0);
     }
-  }
+  };
 
-  const currentContent = contentData.content[activeLanguage]
+  const currentContent = contentData.content[activeLanguage];
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 pb-24">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Configuración de tu Sitio Web Legal</h1>
-          <p className="text-gray-600">Completa la información para personalizar tu sitio web</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Configuración de tu Sitio Web Legal
+          </h1>
+          <p className="text-gray-600">
+            Completa la información para personalizar tu sitio web
+          </p>
         </div>
 
         <div className="mb-8">
@@ -675,9 +782,14 @@ export default function SetupWizard() {
             <span className="text-sm font-medium">
               Paso {currentStep + 1} de {steps.length}: {steps[currentStep]}
             </span>
-            <span className="text-sm font-medium">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
+            <span className="text-sm font-medium">
+              {Math.round(((currentStep + 1) / steps.length) * 100)}%
+            </span>
           </div>
-          <Progress value={((currentStep + 1) / steps.length) * 100} className="h-2" />
+          <Progress
+            value={((currentStep + 1) / steps.length) * 100}
+            className="h-2"
+          />
         </div>
 
         <div className="mb-6 flex justify-between items-center">
@@ -695,7 +807,11 @@ export default function SetupWizard() {
           </div>
 
           {saveStatus && (
-            <span className={`text-sm font-medium ${saveStatus.includes("Error") ? "text-red-600" : "text-green-600"}`}>
+            <span
+              className={`text-sm font-medium ${
+                saveStatus.includes("Error") ? "text-red-600" : "text-green-600"
+              }`}
+            >
               {saveStatus}
             </span>
           )}
@@ -707,21 +823,31 @@ export default function SetupWizard() {
             {currentStep === 0 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-xl font-semibold mb-4">Configuración Básica</h2>
-                  <p className="text-gray-600 mb-6">Configura los ajustes básicos de tu sitio web</p>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Configuración Básica
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    Configura los ajustes básicos de tu sitio web
+                  </p>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-base">¿Qué tipo de sitio web necesitas?</Label>
+                    <Label className="text-base">
+                      ¿Qué tipo de sitio web necesitas?
+                    </Label>
                     <RadioGroup
                       value={contentData.settings.entityType}
-                      onValueChange={(value: "firm" | "person") => updateNestedValue(["settings", "entityType"], value)}
+                      onValueChange={(value: "firm" | "person") =>
+                        updateNestedValue(["settings", "entityType"], value)
+                      }
                       className="mt-2"
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="firm" id="firm" />
-                        <Label htmlFor="firm">Bufete o Firma Legal (múltiples abogados)</Label>
+                        <Label htmlFor="firm">
+                          Bufete o Firma Legal (múltiples abogados)
+                        </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="person" id="person" />
@@ -736,7 +862,9 @@ export default function SetupWizard() {
                     <Label className="text-base">Tema del sitio web</Label>
                     <RadioGroup
                       value={contentData.settings.theme}
-                      onValueChange={(value) => updateNestedValue(["settings", "theme"], value)}
+                      onValueChange={(value) =>
+                        updateNestedValue(["settings", "theme"], value)
+                      }
                       className="mt-2"
                     >
                       <div className="flex items-center space-x-2">
@@ -749,7 +877,9 @@ export default function SetupWizard() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="auto" id="auto" />
-                        <Label htmlFor="auto">Automático (basado en preferencias del usuario)</Label>
+                        <Label htmlFor="auto">
+                          Automático (basado en preferencias del usuario)
+                        </Label>
                       </div>
                     </RadioGroup>
                   </div>
@@ -757,11 +887,17 @@ export default function SetupWizard() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       checked={contentData.settings.enableDarkModeToggle}
-                      onCheckedChange={(checked) => updateNestedValue(["settings", "enableDarkModeToggle"], checked)}
+                      onCheckedChange={(checked) =>
+                        updateNestedValue(
+                          ["settings", "enableDarkModeToggle"],
+                          checked
+                        )
+                      }
                       id="dark-mode-toggle"
                     />
                     <Label htmlFor="dark-mode-toggle">
-                      Permitir que los usuarios cambien entre modo claro y oscuro
+                      Permitir que los usuarios cambien entre modo claro y
+                      oscuro
                     </Label>
                   </div>
 
@@ -773,16 +909,29 @@ export default function SetupWizard() {
                       <div>
                         <Label>Color primario</Label>
                         <div className="flex items-center gap-2">
-                          <Input
+                          
+
+
+<Input
                             type="color"
                             value={contentData.styling.light.primaryColor}
                             onChange={(e) => {
-                              updateNestedValue(["styling", "light", "primaryColor"], e.target.value)
-                              updateNestedValue(["styling", "dark", "primaryColor"], e.target.value)
+                              const newColor = e.target.value;
+                              setContentData((prev) => {
+                                // clonamos el prev completamente
+                                const next = JSON.parse(JSON.stringify(prev));
+                                // actualizamos light y dark en la misma copia
+                                next.styling.light.primaryColor = newColor;
+                                next.styling.dark.primaryColor = newColor;
+                                return next;
+                              });
                             }}
                             className="w-16 h-10"
                           />
-                          <span className="text-sm">{contentData.styling.light.primaryColor}</span>
+                          <span className="text-sm">
+                            {contentData.styling.light.primaryColor}
+                          </span>
+
                         </div>
                       </div>
                       <div>
@@ -792,12 +941,21 @@ export default function SetupWizard() {
                             type="color"
                             value={contentData.styling.light.secondaryColor}
                             onChange={(e) => {
-                              updateNestedValue(["styling", "light", "secondaryColor"], e.target.value)
-                              updateNestedValue(["styling", "dark", "secondaryColor"], e.target.value)
+                              const newColor = e.target.value;
+                              setContentData((prev) => {
+                                // clonamos el prev completamente
+                                const next = JSON.parse(JSON.stringify(prev));
+                                // actualizamos light y dark en la misma copia
+                                next.styling.light.secondaryColor = newColor;
+                                next.styling.dark.secondaryColor = newColor;
+                                return next;
+                              });
                             }}
                             className="w-16 h-10"
                           />
-                          <span className="text-sm">{contentData.styling.light.secondaryColor}</span>
+                          <span className="text-sm">
+                            {contentData.styling.light.secondaryColor}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -807,7 +965,9 @@ export default function SetupWizard() {
                     <Label className="text-base">Tipografía</Label>
                     <Select
                       value={contentData.styling.fontFamily}
-                      onValueChange={(value) => updateNestedValue(["styling", "fontFamily"], value)}
+                      onValueChange={(value) =>
+                        updateNestedValue(["styling", "fontFamily"], value)
+                      }
                     >
                       <SelectTrigger className="mt-2">
                         <SelectValue />
@@ -817,9 +977,44 @@ export default function SetupWizard() {
                         <SelectItem value="Roboto">Roboto</SelectItem>
                         <SelectItem value="Open+Sans">Open Sans</SelectItem>
                         <SelectItem value="Lato">Lato</SelectItem>
-                        <SelectItem value="Playfair+Display">Playfair Display</SelectItem>
+                        <SelectItem value="Playfair+Display">
+                          Playfair Display
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                  {/* --- Después de la sección de Color primario / Color secundario / Tipografía --- */}
+                  <div
+                    className="mt-6 p-4 rounded-lg shadow-md"
+                    style={{
+                      backgroundColor: contentData.styling.light.primaryColor,
+                      fontFamily: contentData.styling.fontFamily,
+                      color: contentData.styling.light.textPrimary,
+                    }}
+                  >
+                    <h3 className="text-2xl mb-2">Vista Previa</h3>
+                    <p className="mb-4">
+                      Este texto usa <strong>color secundario</strong>:
+                      <span
+                        style={{
+                          color: contentData.styling.light.secondaryColor,
+                          marginLeft: 8,
+                        }}
+                      >
+                        {contentData.styling.light.secondaryColor}
+                      </span>
+                    </p>
+                    <button
+                      className="px-4 py-2 rounded"
+                      style={{
+                        backgroundColor:
+                          contentData.styling.light.secondaryColor,
+                        color: contentData.styling.light.textPrimary,
+                        fontFamily: contentData.styling.fontFamily,
+                      }}
+                    >
+                      Botón de muestra
+                    </button>
                   </div>
                 </div>
               </div>
@@ -829,24 +1024,41 @@ export default function SetupWizard() {
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-xl font-semibold mb-4">Información General</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Información General
+                  </h2>
                   <p className="text-gray-600 mb-6">
                     Ingresa la información principal de tu{" "}
-                    {contentData.settings.entityType === "firm" ? "bufete" : "perfil profesional"}
+                    {contentData.settings.entityType === "firm"
+                      ? "bufete"
+                      : "perfil profesional"}
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <Label>Nombre del {contentData.settings.entityType === "firm" ? "Bufete" : "Abogado"}</Label>
+                    <Label>
+                      Nombre del{" "}
+                      {contentData.settings.entityType === "firm"
+                        ? "Bufete"
+                        : "Abogado"}
+                    </Label>
                     <Input
                       value={currentContent.header.logoText}
                       onChange={(e) => {
-                        updateNestedValue(["content", activeLanguage, "header", "logoText"], e.target.value)
-                        updateNestedValue(["content", activeLanguage, "hero", "title"], e.target.value)
+                        updateNestedValue(
+                          ["content", activeLanguage, "header", "logoText"],
+                          e.target.value
+                        );
+                        updateNestedValue(
+                          ["content", activeLanguage, "hero", "title"],
+                          e.target.value
+                        );
                       }}
                       placeholder={
-                        contentData.settings.entityType === "firm" ? "Nombre de tu bufete" : "Tu nombre completo"
+                        contentData.settings.entityType === "firm"
+                          ? "Nombre de tu bufete"
+                          : "Tu nombre completo"
                       }
                       className="mt-1"
                     />
@@ -857,7 +1069,10 @@ export default function SetupWizard() {
                     <Input
                       value={currentContent.hero.subtitle}
                       onChange={(e) =>
-                        updateNestedValue(["content", activeLanguage, "hero", "subtitle"], e.target.value)
+                        updateNestedValue(
+                          ["content", activeLanguage, "hero", "subtitle"],
+                          e.target.value
+                        )
                       }
                       placeholder="Ej: BUFETE ESPECIALIZADO EN DERECHO CORPORATIVO"
                       className="mt-1"
@@ -869,11 +1084,24 @@ export default function SetupWizard() {
                     <div className="mt-1 flex items-center gap-4">
                       <div className="relative">
                         <div className="border rounded-md overflow-hidden w-32 h-20 bg-gray-100 flex items-center justify-center">
-                          {previewUrls[["content", activeLanguage, "hero", "backgroundImage"].join(".")] ||
-                          currentContent.hero.backgroundImage ? (
+                          {previewUrls[
+                            [
+                              "content",
+                              activeLanguage,
+                              "hero",
+                              "backgroundImage",
+                            ].join(".")
+                          ] || currentContent.hero.backgroundImage ? (
                             <img
                               src={
-                                previewUrls[["content", activeLanguage, "hero", "backgroundImage"].join(".")] ||
+                                previewUrls[
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "hero",
+                                    "backgroundImage",
+                                  ].join(".")
+                                ] ||
                                 currentContent.hero.backgroundImage ||
                                 "/placeholder.svg"
                               }
@@ -891,7 +1119,17 @@ export default function SetupWizard() {
                           accept="image/*"
                           id="hero-image"
                           className="hidden"
-                          onChange={(e) => handleImageUpload(["content", activeLanguage, "hero", "backgroundImage"], e)}
+                          onChange={(e) =>
+                            handleImageUpload(
+                              [
+                                "content",
+                                activeLanguage,
+                                "hero",
+                                "backgroundImage",
+                              ],
+                              e
+                            )
+                          }
                         />
                         <Label
                           htmlFor="hero-image"
@@ -900,7 +1138,9 @@ export default function SetupWizard() {
                           <Upload className="w-4 h-4 mr-2" />
                           Subir imagen
                         </Label>
-                        <p className="text-xs text-gray-500 mt-1">Recomendado: 1920x1080px</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Recomendado: 1920x1080px
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -912,22 +1152,32 @@ export default function SetupWizard() {
                       <Label>Sobre Nosotros</Label>
                       <div className="space-y-4 mt-2">
                         <div>
-                          <Label className="text-sm text-gray-600">Título</Label>
+                          <Label className="text-sm text-gray-600">
+                            Título
+                          </Label>
                           <Input
                             value={currentContent.about.title}
                             onChange={(e) =>
-                              updateNestedValue(["content", activeLanguage, "about", "title"], e.target.value)
+                              updateNestedValue(
+                                ["content", activeLanguage, "about", "title"],
+                                e.target.value
+                              )
                             }
                             placeholder="Ej: Bienvenido a Nuestro Bufete"
                             className="mt-1"
                           />
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-600">Misión</Label>
+                          <Label className="text-sm text-gray-600">
+                            Misión
+                          </Label>
                           <Textarea
                             value={currentContent.about.mission}
                             onChange={(e) =>
-                              updateNestedValue(["content", activeLanguage, "about", "mission"], e.target.value)
+                              updateNestedValue(
+                                ["content", activeLanguage, "about", "mission"],
+                                e.target.value
+                              )
                             }
                             placeholder="Describe la misión de tu bufete..."
                             className="mt-1"
@@ -935,11 +1185,16 @@ export default function SetupWizard() {
                           />
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-600">Valores</Label>
+                          <Label className="text-sm text-gray-600">
+                            Valores
+                          </Label>
                           <Textarea
                             value={currentContent.about.values}
                             onChange={(e) =>
-                              updateNestedValue(["content", activeLanguage, "about", "values"], e.target.value)
+                              updateNestedValue(
+                                ["content", activeLanguage, "about", "values"],
+                                e.target.value
+                              )
                             }
                             placeholder="Describe los valores de tu bufete..."
                             className="mt-1"
@@ -955,11 +1210,24 @@ export default function SetupWizard() {
                         <div className="flex items-center gap-4">
                           <div className="relative">
                             <div className="border rounded-full overflow-hidden w-24 h-24 bg-gray-100 flex items-center justify-center">
-                              {previewUrls[["content", activeLanguage, "person", "photo"].join(".")] ||
-                              currentContent.person.photo ? (
+                              {previewUrls[
+                                [
+                                  "content",
+                                  activeLanguage,
+                                  "person",
+                                  "photo",
+                                ].join(".")
+                              ] || currentContent.person.photo ? (
                                 <img
                                   src={
-                                    previewUrls[["content", activeLanguage, "person", "photo"].join(".")] ||
+                                    previewUrls[
+                                      [
+                                        "content",
+                                        activeLanguage,
+                                        "person",
+                                        "photo",
+                                      ].join(".")
+                                    ] ||
                                     currentContent.person.photo ||
                                     "/placeholder.svg"
                                   }
@@ -977,7 +1245,17 @@ export default function SetupWizard() {
                               accept="image/*"
                               id="person-photo"
                               className="hidden"
-                              onChange={(e) => handleImageUpload(["content", activeLanguage, "person", "photo"], e)}
+                              onChange={(e) =>
+                                handleImageUpload(
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "person",
+                                    "photo",
+                                  ],
+                                  e
+                                )
+                              }
                             />
                             <Label
                               htmlFor="person-photo"
@@ -986,37 +1264,54 @@ export default function SetupWizard() {
                               <Upload className="w-4 h-4 mr-2" />
                               Subir foto
                             </Label>
-                            <p className="text-xs text-gray-500 mt-1">Recomendado: 400x400px</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Recomendado: 400x400px
+                            </p>
                           </div>
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-600">Nombre completo</Label>
+                          <Label className="text-sm text-gray-600">
+                            Nombre completo
+                          </Label>
                           <Input
                             value={currentContent.person.name}
                             onChange={(e) =>
-                              updateNestedValue(["content", activeLanguage, "person", "name"], e.target.value)
+                              updateNestedValue(
+                                ["content", activeLanguage, "person", "name"],
+                                e.target.value
+                              )
                             }
                             placeholder="Ej: Juan Pérez, Esq."
                             className="mt-1"
                           />
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-600">Título profesional</Label>
+                          <Label className="text-sm text-gray-600">
+                            Título profesional
+                          </Label>
                           <Input
                             value={currentContent.person.title}
                             onChange={(e) =>
-                              updateNestedValue(["content", activeLanguage, "person", "title"], e.target.value)
+                              updateNestedValue(
+                                ["content", activeLanguage, "person", "title"],
+                                e.target.value
+                              )
                             }
                             placeholder="Ej: Abogado Especialista en Derecho Corporativo"
                             className="mt-1"
                           />
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-600">Biografía</Label>
+                          <Label className="text-sm text-gray-600">
+                            Biografía
+                          </Label>
                           <Textarea
                             value={currentContent.person.bio}
                             onChange={(e) =>
-                              updateNestedValue(["content", activeLanguage, "person", "bio"], e.target.value)
+                              updateNestedValue(
+                                ["content", activeLanguage, "person", "bio"],
+                                e.target.value
+                              )
                             }
                             placeholder="Describe tu experiencia profesional y especialidades..."
                             className="mt-1"
@@ -1035,7 +1330,9 @@ export default function SetupWizard() {
               <div className="space-y-6">
                 <div>
                   <h2 className="text-xl font-semibold mb-4">Servicios</h2>
-                  <p className="text-gray-600 mb-6">Define las áreas de práctica o servicios que ofreces</p>
+                  <p className="text-gray-600 mb-6">
+                    Define las áreas de práctica o servicios que ofreces
+                  </p>
                 </div>
 
                 <div>
@@ -1043,7 +1340,10 @@ export default function SetupWizard() {
                   <Input
                     value={currentContent.services.title}
                     onChange={(e) =>
-                      updateNestedValue(["content", activeLanguage, "services", "title"], e.target.value)
+                      updateNestedValue(
+                        ["content", activeLanguage, "services", "title"],
+                        e.target.value
+                      )
                     }
                     placeholder="Ej: Áreas de Práctica"
                     className="mt-1"
@@ -1053,134 +1353,214 @@ export default function SetupWizard() {
                 <div className="space-y-6 mt-4">
                   <Label>Servicios</Label>
 
-                  {currentContent.services.items.map((service: any, index: number) => (
-                    <div key={index} className="border rounded-md p-4 space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium">Servicio {index + 1}</h3>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeArrayItem(["content", activeLanguage, "services", "items"], index)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Eliminar
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-sm text-gray-600">Título</Label>
-                          <Input
-                            value={service.title}
-                            onChange={(e) =>
-                              updateNestedValue(
-                                ["content", activeLanguage, "services", "items", index, "title"],
-                                e.target.value,
+                  {currentContent.services.items.map(
+                    (service: any, index: number) => (
+                      <div
+                        key={index}
+                        className="border rounded-md p-4 space-y-4"
+                      >
+                        <div className="flex justify-between items-center">
+                          <h3 className="font-medium">Servicio {index + 1}</h3>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() =>
+                              removeArrayItem(
+                                [
+                                  "content",
+                                  activeLanguage,
+                                  "services",
+                                  "items",
+                                ],
+                                index
                               )
                             }
-                            placeholder="Ej: Derecho Corporativo"
-                            className="mt-1"
-                          />
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Eliminar
+                          </Button>
                         </div>
 
-                        <div className="flex items-center gap-4">
-                          <div className="relative">
-                            <div className="border rounded-md overflow-hidden w-12 h-12 bg-gray-100 flex items-center justify-center">
-                              {previewUrls[["content", activeLanguage, "services", "items", index, "icon"].join(".")] ||
-                              service.icon ? (
-                                <img
-                                  src={
-                                    previewUrls[
-                                      ["content", activeLanguage, "services", "items", index, "icon"].join(".")
-                                    ] || service.icon
-                                  }
-                                  alt="Icono"
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <ImageIcon className="w-4 h-4 text-gray-400" />
-                              )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-sm text-gray-600">
+                              Título
+                            </Label>
+                            <Input
+                              value={service.title}
+                              onChange={(e) =>
+                                updateNestedValue(
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "services",
+                                    "items",
+                                    index,
+                                    "title",
+                                  ],
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Ej: Derecho Corporativo"
+                              className="mt-1"
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <div className="relative">
+                              <div className="border rounded-md overflow-hidden w-12 h-12 bg-gray-100 flex items-center justify-center">
+                                {previewUrls[
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "services",
+                                    "items",
+                                    index,
+                                    "icon",
+                                  ].join(".")
+                                ] || service.icon ? (
+                                  <img
+                                    src={
+                                      previewUrls[
+                                        [
+                                          "content",
+                                          activeLanguage,
+                                          "services",
+                                          "items",
+                                          index,
+                                          "icon",
+                                        ].join(".")
+                                      ] || service.icon
+                                    }
+                                    alt="Icono"
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <ImageIcon className="w-4 h-4 text-gray-400" />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                id={`service-icon-${index}`}
+                                className="hidden"
+                                onChange={(e) =>
+                                  handleImageUpload(
+                                    [
+                                      "content",
+                                      activeLanguage,
+                                      "services",
+                                      "items",
+                                      index,
+                                      "icon",
+                                    ],
+                                    e
+                                  )
+                                }
+                              />
+                              <Label
+                                htmlFor={`service-icon-${index}`}
+                                className="cursor-pointer inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+                              >
+                                <Upload className="w-3 h-3 mr-1" />
+                                Icono
+                              </Label>
                             </div>
                           </div>
+                        </div>
+
+                        <div>
+                          <Label className="text-sm text-gray-600">
+                            Descripción
+                          </Label>
+                          <Textarea
+                            value={service.description}
+                            onChange={(e) =>
+                              updateNestedValue(
+                                [
+                                  "content",
+                                  activeLanguage,
+                                  "services",
+                                  "items",
+                                  index,
+                                  "description",
+                                ],
+                                e.target.value
+                              )
+                            }
+                            placeholder="Describe este servicio..."
+                            className="mt-1"
+                            rows={2}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              id={`service-icon-${index}`}
-                              className="hidden"
-                              onChange={(e) =>
-                                handleImageUpload(["content", activeLanguage, "services", "items", index, "icon"], e)
-                              }
-                            />
-                            <Label
-                              htmlFor={`service-icon-${index}`}
-                              className="cursor-pointer inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-                            >
-                              <Upload className="w-3 h-3 mr-1" />
-                              Icono
+                            <Label className="text-sm text-gray-600">
+                              Texto del botón
                             </Label>
+                            <Input
+                              value={service.buttonText}
+                              onChange={(e) =>
+                                updateNestedValue(
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "services",
+                                    "items",
+                                    index,
+                                    "buttonText",
+                                  ],
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Ej: Consultar"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-sm text-gray-600">
+                              Enlace del botón
+                            </Label>
+                            <Input
+                              value={service.buttonLink}
+                              onChange={(e) =>
+                                updateNestedValue(
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "services",
+                                    "items",
+                                    index,
+                                    "buttonLink",
+                                  ],
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Ej: #contact"
+                              className="mt-1"
+                            />
                           </div>
                         </div>
                       </div>
-
-                      <div>
-                        <Label className="text-sm text-gray-600">Descripción</Label>
-                        <Textarea
-                          value={service.description}
-                          onChange={(e) =>
-                            updateNestedValue(
-                              ["content", activeLanguage, "services", "items", index, "description"],
-                              e.target.value,
-                            )
-                          }
-                          placeholder="Describe este servicio..."
-                          className="mt-1"
-                          rows={2}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-sm text-gray-600">Texto del botón</Label>
-                          <Input
-                            value={service.buttonText}
-                            onChange={(e) =>
-                              updateNestedValue(
-                                ["content", activeLanguage, "services", "items", index, "buttonText"],
-                                e.target.value,
-                              )
-                            }
-                            placeholder="Ej: Consultar"
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-sm text-gray-600">Enlace del botón</Label>
-                          <Input
-                            value={service.buttonLink}
-                            onChange={(e) =>
-                              updateNestedValue(
-                                ["content", activeLanguage, "services", "items", index, "buttonLink"],
-                                e.target.value,
-                              )
-                            }
-                            placeholder="Ej: #contact"
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  )}
 
                   <Button
                     onClick={() =>
-                      addArrayItem(["content", activeLanguage, "services", "items"], {
-                        icon: "/placeholder.svg?height=50&width=50",
-                        title: "",
-                        description: "",
-                        buttonText: activeLanguage === "es" ? "Consultar" : "Inquire",
-                        buttonLink: "#contact",
-                      })
+                      addArrayItem(
+                        ["content", activeLanguage, "services", "items"],
+                        {
+                          icon: "/placeholder.svg?height=50&width=50",
+                          title: "",
+                          description: "",
+                          buttonText:
+                            activeLanguage === "es" ? "Consultar" : "Inquire",
+                          buttonLink: "#contact",
+                        }
+                      )
                     }
                     className="w-full"
                   >
@@ -1210,7 +1590,10 @@ export default function SetupWizard() {
                       <Input
                         value={currentContent.team.title}
                         onChange={(e) =>
-                          updateNestedValue(["content", activeLanguage, "team", "title"], e.target.value)
+                          updateNestedValue(
+                            ["content", activeLanguage, "team", "title"],
+                            e.target.value
+                          )
                         }
                         placeholder="Ej: Nuestro Equipo"
                         className="mt-1"
@@ -1220,134 +1603,219 @@ export default function SetupWizard() {
                     <div className="space-y-6">
                       <Label>Miembros del equipo</Label>
 
-                      {currentContent.team.members.map((member: any, index: number) => (
-                        <div key={index} className="border rounded-md p-4 space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h3 className="font-medium">Miembro {index + 1}</h3>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeArrayItem(["content", activeLanguage, "team", "members"], index)}
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Eliminar
-                            </Button>
-                          </div>
+                      {currentContent.team.members.map(
+                        (member: any, index: number) => (
+                          <div
+                            key={index}
+                            className="border rounded-md p-4 space-y-4"
+                          >
+                            <div className="flex justify-between items-center">
+                              <h3 className="font-medium">
+                                Miembro {index + 1}
+                              </h3>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() =>
+                                  removeArrayItem(
+                                    [
+                                      "content",
+                                      activeLanguage,
+                                      "team",
+                                      "members",
+                                    ],
+                                    index
+                                  )
+                                }
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Eliminar
+                              </Button>
+                            </div>
 
-                          <div className="flex items-center gap-4">
-                            <div className="relative">
-                              <div className="border rounded-full overflow-hidden w-20 h-20 bg-gray-100 flex items-center justify-center">
-                                {previewUrls[
-                                  ["content", activeLanguage, "team", "members", index, "photo"].join(".")
-                                ] || member.photo ? (
-                                  <img
-                                    src={
-                                      previewUrls[
-                                        ["content", activeLanguage, "team", "members", index, "photo"].join(".")
-                                      ] || member.photo
-                                    }
-                                    alt="Foto"
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <ImageIcon className="w-6 h-6 text-gray-400" />
-                                )}
+                            <div className="flex items-center gap-4">
+                              <div className="relative">
+                                <div className="border rounded-full overflow-hidden w-20 h-20 bg-gray-100 flex items-center justify-center">
+                                  {previewUrls[
+                                    [
+                                      "content",
+                                      activeLanguage,
+                                      "team",
+                                      "members",
+                                      index,
+                                      "photo",
+                                    ].join(".")
+                                  ] || member.photo ? (
+                                    <img
+                                      src={
+                                        previewUrls[
+                                          [
+                                            "content",
+                                            activeLanguage,
+                                            "team",
+                                            "members",
+                                            index,
+                                            "photo",
+                                          ].join(".")
+                                        ] || member.photo
+                                      }
+                                      alt="Foto"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <ImageIcon className="w-6 h-6 text-gray-400" />
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  id={`team-photo-${index}`}
+                                  className="hidden"
+                                  onChange={(e) =>
+                                    handleImageUpload(
+                                      [
+                                        "content",
+                                        activeLanguage,
+                                        "team",
+                                        "members",
+                                        index,
+                                        "photo",
+                                      ],
+                                      e
+                                    )
+                                  }
+                                />
+                                <Label
+                                  htmlFor={`team-photo-${index}`}
+                                  className="cursor-pointer inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+                                >
+                                  <Upload className="w-3 h-3 mr-1" />
+                                  Subir foto
+                                </Label>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Recomendado: 300x300px
+                                </p>
                               </div>
                             </div>
-                            <div>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                id={`team-photo-${index}`}
-                                className="hidden"
-                                onChange={(e) =>
-                                  handleImageUpload(["content", activeLanguage, "team", "members", index, "photo"], e)
-                                }
-                              />
-                              <Label
-                                htmlFor={`team-photo-${index}`}
-                                className="cursor-pointer inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-                              >
-                                <Upload className="w-3 h-3 mr-1" />
-                                Subir foto
-                              </Label>
-                              <p className="text-xs text-gray-500 mt-1">Recomendado: 300x300px</p>
-                            </div>
-                          </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label className="text-sm text-gray-600">Nombre</Label>
-                              <Input
-                                value={member.name}
-                                onChange={(e) =>
-                                  updateNestedValue(
-                                    ["content", activeLanguage, "team", "members", index, "name"],
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Ej: Juan Pérez"
-                                className="mt-1"
-                              />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-sm text-gray-600">
+                                  Nombre
+                                </Label>
+                                <Input
+                                  value={member.name}
+                                  onChange={(e) =>
+                                    updateNestedValue(
+                                      [
+                                        "content",
+                                        activeLanguage,
+                                        "team",
+                                        "members",
+                                        index,
+                                        "name",
+                                      ],
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Ej: Juan Pérez"
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-sm text-gray-600">
+                                  Cargo
+                                </Label>
+                                <Input
+                                  value={member.role}
+                                  onChange={(e) =>
+                                    updateNestedValue(
+                                      [
+                                        "content",
+                                        activeLanguage,
+                                        "team",
+                                        "members",
+                                        index,
+                                        "role",
+                                      ],
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Ej: Abogado Senior"
+                                  className="mt-1"
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <Label className="text-sm text-gray-600">Cargo</Label>
-                              <Input
-                                value={member.role}
-                                onChange={(e) =>
-                                  updateNestedValue(
-                                    ["content", activeLanguage, "team", "members", index, "role"],
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Ej: Abogado Senior"
-                                className="mt-1"
-                              />
-                            </div>
-                          </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label className="text-sm text-gray-600">Texto del botón</Label>
-                              <Input
-                                value={member.bioButton}
-                                onChange={(e) =>
-                                  updateNestedValue(
-                                    ["content", activeLanguage, "team", "members", index, "bioButton"],
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Ej: Ver Bio"
-                                className="mt-1"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-sm text-gray-600">Enlace de biografía</Label>
-                              <Input
-                                value={member.bioLink}
-                                onChange={(e) =>
-                                  updateNestedValue(
-                                    ["content", activeLanguage, "team", "members", index, "bioLink"],
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Ej: #"
-                                className="mt-1"
-                              />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-sm text-gray-600">
+                                  Texto del botón
+                                </Label>
+                                <Input
+                                  value={member.bioButton}
+                                  onChange={(e) =>
+                                    updateNestedValue(
+                                      [
+                                        "content",
+                                        activeLanguage,
+                                        "team",
+                                        "members",
+                                        index,
+                                        "bioButton",
+                                      ],
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Ej: Ver Bio"
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-sm text-gray-600">
+                                  Enlace de biografía
+                                </Label>
+                                <Input
+                                  value={member.bioLink}
+                                  onChange={(e) =>
+                                    updateNestedValue(
+                                      [
+                                        "content",
+                                        activeLanguage,
+                                        "team",
+                                        "members",
+                                        index,
+                                        "bioLink",
+                                      ],
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Ej: #"
+                                  className="mt-1"
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
 
                       <Button
                         onClick={() =>
-                          addArrayItem(["content", activeLanguage, "team", "members"], {
-                            photo: "/placeholder.svg?height=150&width=150",
-                            name: "",
-                            role: "",
-                            bioLink: "#",
-                            bioButton: activeLanguage === "es" ? "Ver Bio" : "View Bio",
-                          })
+                          addArrayItem(
+                            ["content", activeLanguage, "team", "members"],
+                            {
+                              photo: "/placeholder.svg?height=150&width=150",
+                              name: "",
+                              role: "",
+                              bioLink: "#",
+                              bioButton:
+                                activeLanguage === "es"
+                                  ? "Ver Bio"
+                                  : "View Bio",
+                            }
+                          )
                         }
                         className="w-full"
                       >
@@ -1363,7 +1831,15 @@ export default function SetupWizard() {
                       <Input
                         value={currentContent.person.experienceTitle}
                         onChange={(e) =>
-                          updateNestedValue(["content", activeLanguage, "person", "experienceTitle"], e.target.value)
+                          updateNestedValue(
+                            [
+                              "content",
+                              activeLanguage,
+                              "person",
+                              "experienceTitle",
+                            ],
+                            e.target.value
+                          )
                         }
                         placeholder="Ej: Experiencia Profesional"
                         className="mt-1"
@@ -1373,78 +1849,123 @@ export default function SetupWizard() {
                     <div className="space-y-6">
                       <Label>Experiencia profesional</Label>
 
-                      {currentContent.person.experience.map((exp: any, index: number) => (
-                        <div key={index} className="border rounded-md p-4 space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h3 className="font-medium">Experiencia {index + 1}</h3>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() =>
-                                removeArrayItem(["content", activeLanguage, "person", "experience"], index)
-                              }
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Eliminar
-                            </Button>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label className="text-sm text-gray-600">Período</Label>
-                              <Input
-                                value={exp.dateRange}
-                                onChange={(e) =>
-                                  updateNestedValue(
-                                    ["content", activeLanguage, "person", "experience", index, "dateRange"],
-                                    e.target.value,
+                      {currentContent.person.experience.map(
+                        (exp: any, index: number) => (
+                          <div
+                            key={index}
+                            className="border rounded-md p-4 space-y-4"
+                          >
+                            <div className="flex justify-between items-center">
+                              <h3 className="font-medium">
+                                Experiencia {index + 1}
+                              </h3>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() =>
+                                  removeArrayItem(
+                                    [
+                                      "content",
+                                      activeLanguage,
+                                      "person",
+                                      "experience",
+                                    ],
+                                    index
                                   )
                                 }
-                                placeholder="Ej: 2015-2020"
-                                className="mt-1"
-                              />
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Eliminar
+                              </Button>
                             </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-sm text-gray-600">
+                                  Período
+                                </Label>
+                                <Input
+                                  value={exp.dateRange}
+                                  onChange={(e) =>
+                                    updateNestedValue(
+                                      [
+                                        "content",
+                                        activeLanguage,
+                                        "person",
+                                        "experience",
+                                        index,
+                                        "dateRange",
+                                      ],
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Ej: 2015-2020"
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-sm text-gray-600">
+                                  Cargo
+                                </Label>
+                                <Input
+                                  value={exp.role}
+                                  onChange={(e) =>
+                                    updateNestedValue(
+                                      [
+                                        "content",
+                                        activeLanguage,
+                                        "person",
+                                        "experience",
+                                        index,
+                                        "role",
+                                      ],
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Ej: Abogado Senior en Firma XYZ"
+                                  className="mt-1"
+                                />
+                              </div>
+                            </div>
+
                             <div>
-                              <Label className="text-sm text-gray-600">Cargo</Label>
-                              <Input
-                                value={exp.role}
+                              <Label className="text-sm text-gray-600">
+                                Detalles
+                              </Label>
+                              <Textarea
+                                value={exp.details}
                                 onChange={(e) =>
                                   updateNestedValue(
-                                    ["content", activeLanguage, "person", "experience", index, "role"],
-                                    e.target.value,
+                                    [
+                                      "content",
+                                      activeLanguage,
+                                      "person",
+                                      "experience",
+                                      index,
+                                      "details",
+                                    ],
+                                    e.target.value
                                   )
                                 }
-                                placeholder="Ej: Abogado Senior en Firma XYZ"
+                                placeholder="Describe tus responsabilidades y logros..."
                                 className="mt-1"
+                                rows={2}
                               />
                             </div>
                           </div>
-
-                          <div>
-                            <Label className="text-sm text-gray-600">Detalles</Label>
-                            <Textarea
-                              value={exp.details}
-                              onChange={(e) =>
-                                updateNestedValue(
-                                  ["content", activeLanguage, "person", "experience", index, "details"],
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="Describe tus responsabilidades y logros..."
-                              className="mt-1"
-                              rows={2}
-                            />
-                          </div>
-                        </div>
-                      ))}
+                        )
+                      )}
 
                       <Button
                         onClick={() =>
-                          addArrayItem(["content", activeLanguage, "person", "experience"], {
-                            dateRange: "",
-                            role: "",
-                            details: "",
-                          })
+                          addArrayItem(
+                            ["content", activeLanguage, "person", "experience"],
+                            {
+                              dateRange: "",
+                              role: "",
+                              details: "",
+                            }
+                          )
                         }
                         className="w-full"
                       >
@@ -1459,7 +1980,15 @@ export default function SetupWizard() {
                         <Input
                           value={currentContent.person.highlightsTitle}
                           onChange={(e) =>
-                            updateNestedValue(["content", activeLanguage, "person", "highlightsTitle"], e.target.value)
+                            updateNestedValue(
+                              [
+                                "content",
+                                activeLanguage,
+                                "person",
+                                "highlightsTitle",
+                              ],
+                              e.target.value
+                            )
                           }
                           placeholder="Ej: Logros Destacados"
                           className="mt-1"
@@ -1469,32 +1998,61 @@ export default function SetupWizard() {
                       <div className="space-y-2">
                         <Label>Logros destacados</Label>
 
-                        {currentContent.person.careerHighlights.map((highlight: string, index: number) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <Input
-                              value={highlight}
-                              onChange={(e) =>
-                                updateNestedValue(
-                                  ["content", activeLanguage, "person", "careerHighlights", index],
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="Ej: Certificación en Derecho Corporativo"
-                            />
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              onClick={() =>
-                                removeArrayItem(["content", activeLanguage, "person", "careerHighlights"], index)
-                              }
+                        {currentContent.person.careerHighlights.map(
+                          (highlight: string, index: number) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2"
                             >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
+                              <Input
+                                value={highlight}
+                                onChange={(e) =>
+                                  updateNestedValue(
+                                    [
+                                      "content",
+                                      activeLanguage,
+                                      "person",
+                                      "careerHighlights",
+                                      index,
+                                    ],
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Ej: Certificación en Derecho Corporativo"
+                              />
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() =>
+                                  removeArrayItem(
+                                    [
+                                      "content",
+                                      activeLanguage,
+                                      "person",
+                                      "careerHighlights",
+                                    ],
+                                    index
+                                  )
+                                }
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          )
+                        )}
 
                         <Button
-                          onClick={() => addArrayItem(["content", activeLanguage, "person", "careerHighlights"], "")}
+                          onClick={() =>
+                            addArrayItem(
+                              [
+                                "content",
+                                activeLanguage,
+                                "person",
+                                "careerHighlights",
+                              ],
+                              ""
+                            )
+                          }
                           size="sm"
                           className="mt-2"
                         >
@@ -1513,14 +2071,21 @@ export default function SetupWizard() {
               <div className="space-y-6">
                 <div>
                   <h2 className="text-xl font-semibold mb-4">Casos de Éxito</h2>
-                  <p className="text-gray-600 mb-6">Comparte tus casos exitosos para mostrar tu experiencia</p>
+                  <p className="text-gray-600 mb-6">
+                    Comparte tus casos exitosos para mostrar tu experiencia
+                  </p>
                 </div>
 
                 <div>
                   <Label>Título de la sección</Label>
                   <Input
                     value={currentContent.cases.title}
-                    onChange={(e) => updateNestedValue(["content", activeLanguage, "cases", "title"], e.target.value)}
+                    onChange={(e) =>
+                      updateNestedValue(
+                        ["content", activeLanguage, "cases", "title"],
+                        e.target.value
+                      )
+                    }
                     placeholder="Ej: Casos de Éxito"
                     className="mt-1"
                   />
@@ -1529,92 +2094,142 @@ export default function SetupWizard() {
                 <div className="space-y-6 mt-4">
                   <Label>Casos</Label>
 
-                  {currentContent.cases.items.map((caseItem: any, index: number) => (
-                    <div key={index} className="border rounded-md p-4 space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium">Caso {index + 1}</h3>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeArrayItem(["content", activeLanguage, "cases", "items"], index)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Eliminar
-                        </Button>
-                      </div>
-
-                      <div>
-                        <Label className="text-sm text-gray-600">Título del caso</Label>
-                        <Input
-                          value={caseItem.caseTitle}
-                          onChange={(e) =>
-                            updateNestedValue(
-                              ["content", activeLanguage, "cases", "items", index, "caseTitle"],
-                              e.target.value,
-                            )
-                          }
-                          placeholder="Ej: Victoria en caso de litigio comercial 2024"
-                          className="mt-1"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-sm text-gray-600">Descripción</Label>
-                        <Textarea
-                          value={caseItem.description}
-                          onChange={(e) =>
-                            updateNestedValue(
-                              ["content", activeLanguage, "cases", "items", index, "description"],
-                              e.target.value,
-                            )
-                          }
-                          placeholder="Describe brevemente el caso y su resultado..."
-                          className="mt-1"
-                          rows={2}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-sm text-gray-600">Texto del botón</Label>
-                          <Input
-                            value={caseItem.detailsButton}
-                            onChange={(e) =>
-                              updateNestedValue(
-                                ["content", activeLanguage, "cases", "items", index, "detailsButton"],
-                                e.target.value,
+                  {currentContent.cases.items.map(
+                    (caseItem: any, index: number) => (
+                      <div
+                        key={index}
+                        className="border rounded-md p-4 space-y-4"
+                      >
+                        <div className="flex justify-between items-center">
+                          <h3 className="font-medium">Caso {index + 1}</h3>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() =>
+                              removeArrayItem(
+                                ["content", activeLanguage, "cases", "items"],
+                                index
                               )
                             }
-                            placeholder="Ej: Detalles"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Eliminar
+                          </Button>
+                        </div>
+
+                        <div>
+                          <Label className="text-sm text-gray-600">
+                            Título del caso
+                          </Label>
+                          <Input
+                            value={caseItem.caseTitle}
+                            onChange={(e) =>
+                              updateNestedValue(
+                                [
+                                  "content",
+                                  activeLanguage,
+                                  "cases",
+                                  "items",
+                                  index,
+                                  "caseTitle",
+                                ],
+                                e.target.value
+                              )
+                            }
+                            placeholder="Ej: Victoria en caso de litigio comercial 2024"
                             className="mt-1"
                           />
                         </div>
+
                         <div>
-                          <Label className="text-sm text-gray-600">Enlace a detalles</Label>
-                          <Input
-                            value={caseItem.detailsLink}
+                          <Label className="text-sm text-gray-600">
+                            Descripción
+                          </Label>
+                          <Textarea
+                            value={caseItem.description}
                             onChange={(e) =>
                               updateNestedValue(
-                                ["content", activeLanguage, "cases", "items", index, "detailsLink"],
-                                e.target.value,
+                                [
+                                  "content",
+                                  activeLanguage,
+                                  "cases",
+                                  "items",
+                                  index,
+                                  "description",
+                                ],
+                                e.target.value
                               )
                             }
-                            placeholder="Ej: #"
+                            placeholder="Describe brevemente el caso y su resultado..."
                             className="mt-1"
+                            rows={2}
                           />
                         </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-sm text-gray-600">
+                              Texto del botón
+                            </Label>
+                            <Input
+                              value={caseItem.detailsButton}
+                              onChange={(e) =>
+                                updateNestedValue(
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "cases",
+                                    "items",
+                                    index,
+                                    "detailsButton",
+                                  ],
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Ej: Detalles"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-sm text-gray-600">
+                              Enlace a detalles
+                            </Label>
+                            <Input
+                              value={caseItem.detailsLink}
+                              onChange={(e) =>
+                                updateNestedValue(
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "cases",
+                                    "items",
+                                    index,
+                                    "detailsLink",
+                                  ],
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Ej: #"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
 
                   <Button
                     onClick={() =>
-                      addArrayItem(["content", activeLanguage, "cases", "items"], {
-                        caseTitle: "",
-                        description: "",
-                        detailsLink: "#",
-                        detailsButton: activeLanguage === "es" ? "Detalles" : "Details",
-                      })
+                      addArrayItem(
+                        ["content", activeLanguage, "cases", "items"],
+                        {
+                          caseTitle: "",
+                          description: "",
+                          detailsLink: "#",
+                          detailsButton:
+                            activeLanguage === "es" ? "Detalles" : "Details",
+                        }
+                      )
                     }
                     className="w-full"
                   >
@@ -1629,8 +2244,12 @@ export default function SetupWizard() {
             {currentStep === 5 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-xl font-semibold mb-4">Información de Contacto</h2>
-                  <p className="text-gray-600 mb-6">Configura la información de contacto y ubicación</p>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Información de Contacto
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    Configura la información de contacto y ubicación
+                  </p>
                 </div>
 
                 <div className="space-y-4">
@@ -1639,7 +2258,10 @@ export default function SetupWizard() {
                     <Input
                       value={currentContent.contact.title}
                       onChange={(e) =>
-                        updateNestedValue(["content", activeLanguage, "contact", "title"], e.target.value)
+                        updateNestedValue(
+                          ["content", activeLanguage, "contact", "title"],
+                          e.target.value
+                        )
                       }
                       placeholder="Ej: Contáctanos"
                       className="mt-1"
@@ -1655,8 +2277,14 @@ export default function SetupWizard() {
                         value={currentContent.contact.details.address}
                         onChange={(e) =>
                           updateNestedValue(
-                            ["content", activeLanguage, "contact", "details", "address"],
-                            e.target.value,
+                            [
+                              "content",
+                              activeLanguage,
+                              "contact",
+                              "details",
+                              "address",
+                            ],
+                            e.target.value
                           )
                         }
                         placeholder="Ej: Av. Principal 123, Ciudad"
@@ -1668,7 +2296,16 @@ export default function SetupWizard() {
                       <Input
                         value={currentContent.contact.details.phone}
                         onChange={(e) =>
-                          updateNestedValue(["content", activeLanguage, "contact", "details", "phone"], e.target.value)
+                          updateNestedValue(
+                            [
+                              "content",
+                              activeLanguage,
+                              "contact",
+                              "details",
+                              "phone",
+                            ],
+                            e.target.value
+                          )
                         }
                         placeholder="Ej: +1 (555) 123-4567"
                         className="mt-1"
@@ -1683,7 +2320,16 @@ export default function SetupWizard() {
                         type="email"
                         value={currentContent.contact.details.email}
                         onChange={(e) =>
-                          updateNestedValue(["content", activeLanguage, "contact", "details", "email"], e.target.value)
+                          updateNestedValue(
+                            [
+                              "content",
+                              activeLanguage,
+                              "contact",
+                              "details",
+                              "email",
+                            ],
+                            e.target.value
+                          )
                         }
                         placeholder="Ej: info@mibufete.com"
                         className="mt-1"
@@ -1694,7 +2340,16 @@ export default function SetupWizard() {
                       <Input
                         value={currentContent.contact.details.hours}
                         onChange={(e) =>
-                          updateNestedValue(["content", activeLanguage, "contact", "details", "hours"], e.target.value)
+                          updateNestedValue(
+                            [
+                              "content",
+                              activeLanguage,
+                              "contact",
+                              "details",
+                              "hours",
+                            ],
+                            e.target.value
+                          )
                         }
                         placeholder="Ej: Lun–Vie: 9am – 5pm"
                         className="mt-1"
@@ -1708,8 +2363,14 @@ export default function SetupWizard() {
                       value={currentContent.contact.location.embedMapUrl}
                       onChange={(e) =>
                         updateNestedValue(
-                          ["content", activeLanguage, "contact", "location", "embedMapUrl"],
-                          e.target.value,
+                          [
+                            "content",
+                            activeLanguage,
+                            "contact",
+                            "location",
+                            "embedMapUrl",
+                          ],
+                          e.target.value
                         )
                       }
                       placeholder="Pega aquí la URL de embed de Google Maps..."
@@ -1717,7 +2378,8 @@ export default function SetupWizard() {
                       rows={3}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Ve a Google Maps, busca tu dirección, haz clic en "Compartir" → "Insertar un mapa" y copia la URL
+                      Ve a Google Maps, busca tu dirección, haz clic en
+                      "Compartir" → "Insertar un mapa" y copia la URL
                     </p>
                   </div>
 
@@ -1728,7 +2390,15 @@ export default function SetupWizard() {
                     <Input
                       value={currentContent.contact.submitButtonText}
                       onChange={(e) =>
-                        updateNestedValue(["content", activeLanguage, "contact", "submitButtonText"], e.target.value)
+                        updateNestedValue(
+                          [
+                            "content",
+                            activeLanguage,
+                            "contact",
+                            "submitButtonText",
+                          ],
+                          e.target.value
+                        )
                       }
                       placeholder="Ej: Enviar mensaje"
                       className="mt-1"
@@ -1740,41 +2410,68 @@ export default function SetupWizard() {
                   <div>
                     <Label>Redes sociales</Label>
                     <div className="space-y-4 mt-2">
-                      {currentContent.socialMedia.networks.map((network: any, index: number) => (
-                        <div key={index} className="flex items-center gap-4">
-                          <div className="w-20">
-                            <Label className="text-sm text-gray-600 capitalize">{network.name}</Label>
+                      {currentContent.socialMedia.networks.map(
+                        (network: any, index: number) => (
+                          <div key={index} className="flex items-center gap-4">
+                            <div className="w-20">
+                              <Label className="text-sm text-gray-600 capitalize">
+                                {network.name}
+                              </Label>
+                            </div>
+                            <Input
+                              value={network.url}
+                              onChange={(e) =>
+                                updateNestedValue(
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "socialMedia",
+                                    "networks",
+                                    index,
+                                    "url",
+                                  ],
+                                  e.target.value
+                                )
+                              }
+                              placeholder={`URL de ${network.name}`}
+                              className="flex-1"
+                            />
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() =>
+                                removeArrayItem(
+                                  [
+                                    "content",
+                                    activeLanguage,
+                                    "socialMedia",
+                                    "networks",
+                                  ],
+                                  index
+                                )
+                              }
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
-                          <Input
-                            value={network.url}
-                            onChange={(e) =>
-                              updateNestedValue(
-                                ["content", activeLanguage, "socialMedia", "networks", index, "url"],
-                                e.target.value,
-                              )
-                            }
-                            placeholder={`URL de ${network.name}`}
-                            className="flex-1"
-                          />
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() =>
-                              removeArrayItem(["content", activeLanguage, "socialMedia", "networks"], index)
-                            }
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
+                        )
+                      )}
 
                       <Button
                         onClick={() =>
-                          addArrayItem(["content", activeLanguage, "socialMedia", "networks"], {
-                            name: "Instagram",
-                            url: "",
-                            icon: "instagram",
-                          })
+                          addArrayItem(
+                            [
+                              "content",
+                              activeLanguage,
+                              "socialMedia",
+                              "networks",
+                            ],
+                            {
+                              name: "Instagram",
+                              url: "",
+                              icon: "instagram",
+                            }
+                          )
                         }
                         size="sm"
                       >
@@ -1797,29 +2494,49 @@ export default function SetupWizard() {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-semibold mb-4">¡Configuración Completada!</h2>
+                  <h2 className="text-2xl font-semibold mb-4">
+                    ¡Configuración Completada!
+                  </h2>
                   <p className="text-gray-600 mb-6">
-                    Has completado la configuración de tu sitio web legal. Ahora crearemos tu perfil.
+                    Has completado la configuración de tu sitio web legal. Ahora
+                    crearemos tu perfil.
                   </p>
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-6 text-left">
-                  <h3 className="font-semibold mb-4">Resumen de tu configuración:</h3>
+                  <h3 className="font-semibold mb-4">
+                    Resumen de tu configuración:
+                  </h3>
                   <ul className="space-y-2 text-sm">
                     <li>
-                      • Tipo: {contentData.settings.entityType === "firm" ? "Bufete Legal" : "Abogado Individual"}
+                      • Tipo:{" "}
+                      {contentData.settings.entityType === "firm"
+                        ? "Bufete Legal"
+                        : "Abogado Individual"}
                     </li>
                     <li>• Nombre: {currentContent.header.logoText}</li>
-                    <li>• Servicios: {currentContent.services.items.length} configurados</li>
                     <li>
-                      • {contentData.settings.entityType === "firm" ? "Miembros del equipo" : "Experiencias"}:{" "}
+                      • Servicios: {currentContent.services.items.length}{" "}
+                      configurados
+                    </li>
+                    <li>
+                      •{" "}
+                      {contentData.settings.entityType === "firm"
+                        ? "Miembros del equipo"
+                        : "Experiencias"}
+                      :{" "}
                       {contentData.settings.entityType === "firm"
                         ? currentContent.team.members.length
                         : currentContent.person.experience.length}{" "}
                       configurados
                     </li>
-                    <li>• Casos de éxito: {currentContent.cases.items.length} configurados</li>
-                    <li>• Idiomas: {contentData.settings.languages.join(", ")}</li>
+                    <li>
+                      • Casos de éxito: {currentContent.cases.items.length}{" "}
+                      configurados
+                    </li>
+                    <li>
+                      • Idiomas: {contentData.settings.languages.join(", ")}
+                    </li>
                   </ul>
                 </div>
 
@@ -1840,7 +2557,8 @@ export default function SetupWizard() {
                   </Button>
 
                   <p className="text-sm text-gray-500">
-                    Se creará tu perfil y serás redirigido a tu sitio web personalizado.
+                    Se creará tu perfil y serás redirigido a tu sitio web
+                    personalizado.
                   </p>
                 </div>
               </div>
@@ -1850,7 +2568,11 @@ export default function SetupWizard() {
 
         {/* Navigation */}
         <div className="flex justify-between items-center">
-          <Button onClick={prevStep} disabled={currentStep === 0} variant="outline">
+          <Button
+            onClick={prevStep}
+            disabled={currentStep === 0}
+            variant="outline"
+          >
             <ChevronLeft className="w-4 h-4 mr-2" />
             Anterior
           </Button>
@@ -1865,7 +2587,11 @@ export default function SetupWizard() {
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
-            <Button onClick={createProfile} disabled={isSubmitting} className="bg-green-600 hover:bg-green-700">
+            <Button
+              onClick={createProfile}
+              disabled={isSubmitting}
+              className="bg-green-600 hover:bg-green-700"
+            >
               {isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -1879,6 +2605,5 @@ export default function SetupWizard() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
