@@ -638,23 +638,25 @@ export default function SetupWizard() {
   const router = useRouter();
 
   const handleImageUpload = (
-    path: string[],
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  path: string[],
+  event: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-    // Create a preview URL
-    const previewUrl = URL.createObjectURL(file);
-    setPreviewUrls((prev) => ({ ...prev, [path.join(".")]: previewUrl }));
+  // 1) solo para UI
+  const previewUrl = URL.createObjectURL(file);
+  const pathKey = path.join(".");
+  setPreviewUrls((prev) => ({ ...prev, [pathKey]: previewUrl }));
 
-    // Store the file for later processing
-    setImageUploads((prev) => ({ ...prev, [path.join(".")]: file }));
+  // 2) guardar el File para subirlo después (antes de crear el perfil)
+  setImageUploads((prev) => ({ ...prev, [pathKey]: file }));
 
-    // Update the path in the content data with a placeholder that will be replaced
-    // In a real app, you would upload this to a server and get a URL back
-    updateNestedValue(path, previewUrl);
-  };
+  // 3) opcional: no tocar contentData aquí (evita que queden blobs en la BD)
+  // Si quieres mostrar algo en el JSON, puedes setear un marcador temporal:
+  // updateNestedValue(path, "__PENDING_UPLOAD__");
+};
+
 
   const updateNestedValue = (path: string[], value: any) => {
     setContentData((prev) => {
@@ -701,46 +703,87 @@ export default function SetupWizard() {
 
  // Al principio del fichero, carga la URL de la API desde .env
 const API_HOST = "http://localhost:8000";
+// Al principio del fichero:
+
+// Donde montaste routers/images en el server (normalmente /images)
+const IMAGE_API_BASE =
+   `https://crea-tendencia-images.vercel.app/images`;
+
+function setByPath(obj: any, pathKey: string, value: any) {
+  const parts = pathKey.split(".");
+  let cur = obj;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const k = parts[i];
+    if (cur[k] == null || typeof cur[k] !== "object") cur[k] = {};
+    cur = cur[k];
+  }
+  cur[parts[parts.length - 1]] = value;
+}
+
+async function uploadPendingImages(): Promise<Record<string, string>> {
+  const idMap: Record<string, string> = {};
+  for (const [pathKey, file] of Object.entries(imageUploads)) {
+    if (!file) continue;
+    const fd = new FormData();
+    fd.append("file", file); // nombre "file" coincide con tu backend
+    // si quieres forzar conversión WebP en server, deja convert_webp por defecto (true)
+
+    const res = await fetch(`${IMAGE_API_BASE}/upload-image/`, {
+      method: "POST",
+      body: fd,
+    });
+    if (!res.ok) {
+      const t = await res.text().catch(() => "");
+      throw new Error(`Falló subir imagen (${pathKey}): ${res.status} ${t}`);
+    }
+    const { id } = (await res.json()) as { id: string; filename: string; size_b64: number };
+    idMap[pathKey] = id;
+  }
+  return idMap;
+}
 
 async function createProfile() {
   setIsSubmitting(true);
-  setSaveStatus("Creando perfil...");
-
-  const payload = {
-    code: nanoid(8),
-    data: contentData,
-  };
-  console.log("▶️ Payload enviado a /lawyers/:", payload);
+  setSaveStatus("Subiendo imágenes...");
 
   try {
+    // 1) subir imágenes pendientes
+    const idMap = await uploadPendingImages();
+
+    // 2) clonar y reemplazar rutas por IDs
+    const dataToSend: ContentData = JSON.parse(JSON.stringify(contentData));
+    for (const [pathKey, id] of Object.entries(idMap)) {
+      setByPath(dataToSend as any, pathKey, id);
+    }
+
+    setSaveStatus("Creando perfil...");
+
+    const payload = {
+      code: nanoid(8),
+      data: dataToSend, // <-- ya no hay blobs; solo IDs
+    };
+
     const res = await fetch(`${API_HOST}/lawyers/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    console.log("🔔 Status HTTP:", res.status, res.statusText);
     const text = await res.text();
-    console.log("📝 Body raw de la respuesta:", text);
-
     if (!res.ok) {
       let errJson = {};
       try { errJson = JSON.parse(text) } catch {}
-      console.error("❌ Error details from server:", errJson);
+      console.error("❌ Detalle error server:", errJson);
       throw new Error("Error al crear el perfil");
     }
 
-    // Aquí ya no destructuramos { data }, porque tu servidor devuelve directamente { code, data }
     const profile = JSON.parse(text) as { code: string; data: ContentData };
-    console.log("✅ Perfil creado:", profile);
-
     setSaveStatus("¡Perfil creado con éxito!");
 
-    // Redirige usando el code que viene
+    // redirige; tu GET /lawyers/{code} ya devolverá URLs resueltas
     setTimeout(() => {
       router.push(`/?code=${profile.code}`);
-    }, 1500);
-
+    }, 1200);
   } catch (e) {
     console.error("🚨 Exception en createProfile:", e);
     setSaveStatus("Error al crear el perfil. Inténtalo de nuevo.");
@@ -907,7 +950,7 @@ async function createProfile() {
                     <Label className="text-base">Colores principales</Label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                       <div>
-                        <Label>Color primario</Label>
+                        <Label>Color Botones</Label>
                         <div className="flex items-center gap-2">
                           
 
@@ -934,30 +977,7 @@ async function createProfile() {
 
                         </div>
                       </div>
-                      <div>
-                        <Label>Color secundario</Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="color"
-                            value={contentData.styling.light.secondaryColor}
-                            onChange={(e) => {
-                              const newColor = e.target.value;
-                              setContentData((prev) => {
-                                // clonamos el prev completamente
-                                const next = JSON.parse(JSON.stringify(prev));
-                                // actualizamos light y dark en la misma copia
-                                next.styling.light.secondaryColor = newColor;
-                                next.styling.dark.secondaryColor = newColor;
-                                return next;
-                              });
-                            }}
-                            className="w-16 h-10"
-                          />
-                          <span className="text-sm">
-                            {contentData.styling.light.secondaryColor}
-                          </span>
-                        </div>
-                      </div>
+                     
                     </div>
                   </div>
 
@@ -987,7 +1007,7 @@ async function createProfile() {
                   <div
                     className="mt-6 p-4 rounded-lg shadow-md"
                     style={{
-                      backgroundColor: contentData.styling.light.primaryColor,
+                      backgroundColor: "white",
                       fontFamily: contentData.styling.fontFamily,
                       color: contentData.styling.light.textPrimary,
                     }}
@@ -1008,7 +1028,7 @@ async function createProfile() {
                       className="px-4 py-2 rounded"
                       style={{
                         backgroundColor:
-                          contentData.styling.light.secondaryColor,
+                          contentData.styling.light.primaryColor,
                         color: contentData.styling.light.textPrimary,
                         fontFamily: contentData.styling.fontFamily,
                       }}

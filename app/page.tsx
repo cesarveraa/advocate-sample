@@ -24,6 +24,21 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+// Base pública donde sirven las imágenes
+const IMG_BASE = "https://crea-tendencia-images.vercel.app";
+
+// Convierte un ID (p.ej. "abc123") en URL completa "http://.../images/abc123"
+// Si ya viene una URL absoluta (http/https/data/blob), la deja igual.
+function img(src?: string) {
+  if (!src) return "/j.png";
+  const isAbsolute = /^(https?:|data:|blob:)/i.test(src);
+  if (isAbsolute) return src;
+  // si parece un ID (sin slashes, alfanumérico, guiones, underscores)
+  const looksLikeId = /^[A-Za-z0-9_\-]{8,}$/.test(src);
+  if (looksLikeId) return `${IMG_BASE}/images/${src}`;
+  // último recurso: si vino una ruta relativa de tu app, también vale
+  return src;
+}
 
 interface ContentData {
   settings: {
@@ -214,73 +229,112 @@ export default function DixitLawTemplate() {
   const searchParams = useSearchParams()
   const code = searchParams.get("code")
 
+  // 0) Arranca el tema lo antes posible leyendo localStorage / sistema
   useEffect(() => {
-    if (!code) {
-      setError("Código de perfil no proporcionado")
-      setLoading(false)
-      return
+    if (typeof window === "undefined") return;
+
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+      setIsDark(true);
+      return;
+    }
+    if (saved === "light") {
+      setIsDark(false);
+      return;
     }
 
-    // Load content from API
-    fetch(`http://localhost:8000/lawyers/${code}`)
-      .then((res) => {
-        if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error("Perfil no encontrado")
-          }
-          throw new Error("Error al cargar el perfil")
-        }
-        return res.json()
-      })
-      .then(({ data }: { data: ContentData }) => {
-        setContent(data)
-        setEntityType(data.settings.entityType)
-        setCurrentLanguage(data.settings.defaultLanguage)
+    // "auto" (o sin preferencia guardada): sigue el sistema
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDark(mq.matches);
 
-        // Set initial theme
-        if (data.settings.theme === "dark") {
-          setIsDark(true)
-        } else if (data.settings.theme === "light") {
-          setIsDark(false)
-        } else if (data.settings.theme === "auto") {
-          setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches)
-        }
-
-        // Analytics - increment visitor count
-        incrementVisitorCount()
-        setLoading(false)
-      })
-      .catch((err) => {
-        console.error("Error loading content:", err)
-        setError(err.message)
-        setLoading(false)
-      })
-  }, [code])
-
-  useEffect(() => {
-    // Setup Intersection Observer for animations
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible")
-          }
-        })
-      },
-      { threshold: 0.1 },
-    )
-
-    // Observe all animate-section elements
-    const animateElements = document.querySelectorAll(".animate-section")
-    animateElements.forEach((el) => {
-      observerRef.current?.observe(el)
-    })
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    // soporta navegadores viejos/nuevos
+    mq.addEventListener?.("change", handler);
+    // @ts-ignore
+    mq.addListener?.(handler);
 
     return () => {
-      observerRef.current?.disconnect()
-    }
-  }, [content, currentLanguage])
+      mq.removeEventListener?.("change", handler);
+      // @ts-ignore
+      mq.removeListener?.(handler);
+    };
+  }, []);
 
+  // 1) Carga de contenido desde API (sin pisar preferencia guardada)
+  useEffect(() => {
+    if (!code) {
+      setError("Código de perfil no proporcionado");
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/lawyers/${code}`);
+        if (!res.ok) {
+          if (res.status === 404) throw new Error("Perfil no encontrado");
+          throw new Error("Error al cargar el perfil");
+        }
+
+        const { data }: { data: ContentData } = await res.json();
+        if (cancelled) return;
+
+        setContent(data);
+        setEntityType(data.settings.entityType);
+        setCurrentLanguage(data.settings.defaultLanguage);
+
+        // Sólo aplica la preferencia del backend si el usuario NO ha elegido antes
+        const saved = typeof window !== "undefined" ? localStorage.getItem("theme") : null;
+        if (!saved) {
+          if (data.settings.theme === "dark") setIsDark(true);
+          else if (data.settings.theme === "light") setIsDark(false);
+          else if (data.settings.theme === "auto") {
+            const mq = window.matchMedia("(prefers-color-scheme: dark)");
+            setIsDark(mq.matches);
+          }
+        }
+
+        incrementVisitorCount();
+      } catch (err: any) {
+        console.error("Error loading content:", err);
+        setError(err.message || "Error al cargar el perfil");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [code]);
+
+  // 2) Intersection Observer para las animaciones
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("visible");
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const animateElements = document.querySelectorAll(".animate-section");
+    animateElements.forEach((el) => obs.observe(el));
+
+    return () => obs.disconnect();
+  }, [content, currentLanguage]);
+
+  // 3) Toggle de tema: guarda "dark"/"light" (no "auto")
+  const toggleTheme = () => {
+    setIsDark((prev) => {
+      const next = !prev;
+      localStorage.setItem("theme", next ? "dark" : "light");
+      return next;
+    });
+  };
   const incrementVisitorCount = () => {
     console.log("Analytics: Visitor count incremented")
   }
@@ -293,56 +347,6 @@ export default function DixitLawTemplate() {
     console.log(`Analytics: Contact click - ${type}`)
   }
 
-  const toggleEntityType = () => {
-    const newType = entityType === "firm" ? "person" : "firm"
-    setEntityType(newType)
-    if (content) {
-      setContent({
-        ...content,
-        settings: {
-          ...content.settings,
-          entityType: newType,
-        },
-      })
-    }
-  }
-
-  const handleLanguageChange = (lang: string) => {
-    setCurrentLanguage(lang)
-  }
-
-  const scrollToSection = (anchor: string) => {
-    const element = document.querySelector(anchor)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-      const section = anchor.replace("#", "")
-      trackPageClick(section)
-    }
-    setMobileMenuOpen(false)
-  }
-
-  const getFilteredMenuItems = () => {
-    if (!content || !content.content[currentLanguage]) return []
-    return content.content[currentLanguage].header.menuItems.filter((item) => {
-      if (entityType === "person" && item.anchor === "#team") {
-        return false
-      }
-      if (entityType === "firm" && item.anchor === "#experience") {
-        return false
-      }
-      return true
-    })
-  }
-
-  const getCurrentContent = () => {
-    if (!content || !content.content[currentLanguage]) return null
-    return content.content[currentLanguage]
-  }
-
-  const toggleTheme = () => {
-    setIsDark(!isDark)
-    localStorage.setItem("theme", !isDark ? "dark" : "auto")
-  }
 
   if (loading) {
     return (
@@ -379,7 +383,7 @@ export default function DixitLawTemplate() {
     )
   }
 
-  const currentContent = getCurrentContent()
+  const currentContent = content?.content?.[currentLanguage]
   if (!currentContent) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -391,6 +395,60 @@ export default function DixitLawTemplate() {
       </div>
     )
   }
+
+  function getFilteredMenuItems() {
+    if (!currentContent) return [];
+    // If entityType is "firm", show all menu items except "person" section
+    // If entityType is "person", show all menu items except "about" and "team"
+    return currentContent.header.menuItems.filter((item) => {
+      if (entityType === "firm") {
+        // Hide "person" section in firm mode
+        return item.anchor !== "#person";
+      } else {
+        // Hide "about" and "team" sections in person mode
+        return item.anchor !== "#about" && item.anchor !== "#team";
+      }
+    });
+  }
+
+  function scrollToSection(anchor: string): void {
+    if (!anchor) return;
+    // If anchor starts with "#", scroll to element with that id
+    if (anchor.startsWith("#")) {
+      const el = document.getElementById(anchor.slice(1));
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    } else if (/^https?:\/\//.test(anchor)) {
+      // If it's a full URL, navigate
+      window.location.href = anchor;
+    } else {
+      // Otherwise, treat as a relative path or anchor
+      window.location.hash = anchor;
+    }
+    setMobileMenuOpen(false);
+  }
+
+  // Reemplaza la versión que lanza Error por esta:
+  const toggleEntityType = () => {
+    setEntityType(prev => {
+      const next = prev === "firm" ? "person" : "firm";
+      // reflejar el cambio también en content.settings.entityType
+      setContent(prevContent =>
+        prevContent
+          ? { ...prevContent, settings: { ...prevContent.settings, entityType: next } }
+          : prevContent
+      );
+      return next;
+    });
+  };
+// Reutilizable en todo el componente:
+const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white";
+
+  // Fix: Add handleLanguageChange function
+  const handleLanguageChange = (lang: string) => {
+    setCurrentLanguage(lang);
+  };
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDark ? "dark" : ""}`}>
@@ -415,6 +473,12 @@ export default function DixitLawTemplate() {
           --font-size-2xl: ${content.styling.fontSize["2xl"]};
           --font-size-3xl: ${content.styling.fontSize["3xl"]};
           --font-size-4xl: ${content.styling.fontSize["4xl"]};
+          --on-bg: ${isDark ? content.styling.dark.textPrimary : content.styling.light.textPrimary};
+          --on-card: ${isDark ? content.styling.dark.textPrimary : content.styling.light.textPrimary};
+          --on-muted: ${isDark ? content.styling.dark.textSecondary : content.styling.light.textSecondary};
+          --on-primary: #ffffff; /* texto sobre botones primarios */
+          --hero-overlay: rgba(0,0,0,0.55);     /*  overlay consistente */
+          --text-on-hero: #ffffff;  
         }
         
         * {
@@ -661,10 +725,9 @@ export default function DixitLawTemplate() {
             <div className="flex items-center gap-2 mr-2">
               <span className="text-xs text-[var(--text-secondary)]">{currentContent.ui.entityToggle.firmLabel}</span>
               <Button
-                variant="outline"
                 size="sm"
                 onClick={toggleEntityType}
-                className="h-8 px-2 border-[var(--primary-color)] text-[var(--primary-color)]"
+                className={`h-8 px-3 ${btnPrimary}`}
               >
                 {entityType === "firm"
                   ? currentContent.ui.entityToggle.switchToPerson
@@ -721,7 +784,10 @@ export default function DixitLawTemplate() {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" style={{ backgroundImage: `url(${currentContent.hero.backgroundImage})` }}>
+      <section
+        id="hero"
+        style={{ backgroundImage: `url(${img(currentContent.hero.backgroundImage)})` }}
+      >
         <div className="hero-content">
           <h1 className="hero-title">{currentContent.hero.title}</h1>
           <p className="hero-subtitle">{currentContent.hero.subtitle}</p>
@@ -732,16 +798,17 @@ export default function DixitLawTemplate() {
                 <Card key={index} className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
                   <CardContent className="p-6 text-center">
                     <img
-                      src={feature.icon || "/placeholder.svg"}
+                      src={img(feature.icon)}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/j.png" }}
                       alt={`${feature.title} icon`}
                       className="w-16 h-16 mx-auto mb-4 filter brightness-0 invert"
                     />
+
                     <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                     <p className="mb-4 text-white/80">{feature.description}</p>
                     <Button
-                      variant="outline"
                       onClick={() => scrollToSection(feature.buttonLink)}
-                      className="border-white text-white hover:bg-white hover:text-black"
+                      className={btnPrimary}
                     >
                       {feature.buttonText}
                     </Button>
@@ -753,7 +820,7 @@ export default function DixitLawTemplate() {
             <div className="hero-features">
               <Button
                 onClick={() => scrollToSection("#experience")}
-                className="bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white text-lg px-8 py-3"
+                className={`bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white text-lg px-8 py-3`}
               >
                 {currentContent.person.learnMoreButton}
               </Button>
@@ -785,10 +852,11 @@ export default function DixitLawTemplate() {
         <section id="person" className="py-20 bg-[var(--bg)] animate-section">
           <div className="container mx-auto px-4 text-center max-w-4xl">
             <img
-              src={currentContent.person.photo || "/placeholder.svg"}
+              src={img(currentContent.person.photo)}
               alt={currentContent.person.name}
               className="person-avatar mx-auto"
             />
+
             <h1 className="text-4xl font-bold text-[var(--text-primary)] mb-2">{currentContent.person.name}</h1>
             <h2 className="text-xl text-[var(--text-secondary)] mb-6">{currentContent.person.title}</h2>
             <p className="text-lg text-[var(--text-secondary)] mb-8 leading-relaxed">{currentContent.person.bio}</p>
@@ -851,11 +919,8 @@ export default function DixitLawTemplate() {
           <p className="text-xl text-[var(--text-secondary)] text-center mb-8">
             {currentContent.consultation.subtitle}
           </p>
-          <img
-            src={currentContent.consultation.icon || "/placeholder.svg"}
-            alt="Consultation Icon"
-            className="w-24 h-24 mx-auto mb-12"
-          />
+          
+
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
             <div className="flex flex-col items-center text-center">
@@ -906,15 +971,16 @@ export default function DixitLawTemplate() {
               >
                 <CardContent className="p-6">
                   <img
-                    src={service.icon || "/placeholder.svg"}
+                    src={img(service.icon)}
                     alt={`${service.title} icon`}
                     className="w-12 h-12 mb-4"
                   />
+
                   <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">{service.title}</h3>
                   <p className="text-[var(--text-secondary)] mb-6">{service.description}</p>
                   <Button
                     onClick={() => scrollToSection(service.buttonLink)}
-                    className="bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white"
+                    className={btnPrimary}
                   >
                     {service.buttonText}
                   </Button>
@@ -942,16 +1008,16 @@ export default function DixitLawTemplate() {
                 >
                   <CardContent className="p-6">
                     <img
-                      src={member.photo || "/placeholder.svg"}
+                      src={img(member.photo)}
                       alt={member.name}
                       className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
                     />
+
                     <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">{member.name}</h3>
                     <p className="text-[var(--text-secondary)] mb-4 text-sm">{member.role}</p>
                     <Button
-                      variant="outline"
                       onClick={() => trackPageClick("team")}
-                      className="border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white"
+                      className={btnPrimary}
                     >
                       {member.bioButton}
                     </Button>
@@ -981,9 +1047,8 @@ export default function DixitLawTemplate() {
                   <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">{caseItem.caseTitle}</h3>
                   <p className="text-[var(--text-secondary)] mb-6">{caseItem.description}</p>
                   <Button
-                    variant="outline"
                     onClick={() => trackPageClick("cases")}
-                    className="border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white"
+                    className={btnPrimary}
                   >
                     {caseItem.detailsButton}
                   </Button>
