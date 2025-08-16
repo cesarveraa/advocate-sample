@@ -721,20 +721,7 @@ const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90
           </nav>
 
           <div className="flex items-center gap-4">
-            {/* Entity Type Toggle */}
-            <div className="flex items-center gap-2 mr-2">
-              <span className="text-xs text-[var(--text-secondary)]">{currentContent.ui.entityToggle.firmLabel}</span>
-              <Button
-                size="sm"
-                onClick={toggleEntityType}
-                className={`h-8 px-3 ${btnPrimary}`}
-              >
-                {entityType === "firm"
-                  ? currentContent.ui.entityToggle.switchToPerson
-                  : currentContent.ui.entityToggle.switchToFirm}
-              </Button>
-              <span className="text-xs text-[var(--text-secondary)]">{currentContent.ui.entityToggle.personLabel}</span>
-            </div>
+            
 
             {/* Language Toggle */}
             <select
