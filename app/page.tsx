@@ -724,14 +724,7 @@ const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90
             
 
             {/* Language Toggle */}
-            <select
-              value={currentLanguage}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-              className="bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--border)] rounded px-2 py-1 text-sm"
-            >
-              <option value="es">Español</option>
-              <option value="en">English</option>
-            </select>
+            
 
             {/* Theme Toggle */}
             {content.settings.enableDarkModeToggle && (
