@@ -60,7 +60,7 @@ export default function AdminPanel() {
   const loadProfiles = async () => {
     setIsLoadingProfiles(true)
     try {
-      const response = await fetch("http://localhost:8000/lawyers/")
+      const response = await fetch("https://server-advocate.vercel.app/lawyers/")
       if (!response.ok) {
         throw new Error("Error al cargar los perfiles")
       }
@@ -78,7 +78,7 @@ export default function AdminPanel() {
 
   const loadProfile = async (code: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/lawyers/${code}`)
+      const response = await fetch(`https://server-advocate.vercel.app/lawyers/${code}`)
       if (!response.ok) {
         throw new Error("Error al cargar el perfil")
       }
@@ -150,7 +150,7 @@ export default function AdminPanel() {
     setSaveStatus("Guardando...")
 
     try {
-      const response = await fetch(`http://localhost:8000/lawyers/${selectedProfile}`, {
+      const response = await fetch(`https://server-advocate.vercel.app/lawyers/${selectedProfile}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data: contentData }),

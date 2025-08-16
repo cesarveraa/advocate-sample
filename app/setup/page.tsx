@@ -702,7 +702,7 @@ export default function SetupWizard() {
   };
 
  // Al principio del fichero, carga la URL de la API desde .env
-const API_HOST = "http://localhost:8000";
+const API_HOST = "https://server-advocate.vercel.app";
 // Al principio del fichero:
 
 // Donde montaste routers/images en el server (normalmente /images)

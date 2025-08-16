@@ -272,7 +272,7 @@ export default function DixitLawTemplate() {
 
     (async () => {
       try {
-        const res = await fetch(`http://localhost:8000/lawyers/${code}`);
+        const res = await fetch(`https://server-advocate.vercel.app/lawyers/${code}`);
         if (!res.ok) {
           if (res.status === 404) throw new Error("Perfil no encontrado");
           throw new Error("Error al cargar el perfil");
