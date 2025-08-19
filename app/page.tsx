@@ -1,353 +1,132 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
-import {
-  Menu,
-  X,
-  MapPin,
-  Phone,
-  Clock,
-  Mail,
-  Moon,
-  Sun,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Instagram,
-  Youtube,
-} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-// Base pública donde sirven las imágenes
-const IMG_BASE = "https://crea-tendencia-images.vercel.app";
 
-// Convierte un ID (p.ej. "abc123") en URL completa "http://.../images/abc123"
-// Si ya viene una URL absoluta (http/https/data/blob), la deja igual.
-function img(src?: string) {
-  if (!src) return "/j.png";
-  const isAbsolute = /^(https?:|data:|blob:)/i.test(src);
-  if (isAbsolute) return src;
-  // si parece un ID (sin slashes, alfanumérico, guiones, underscores)
-  const looksLikeId = /^[A-Za-z0-9_\-]{8,}$/.test(src);
-  if (looksLikeId) return `${IMG_BASE}/images/${src}`;
-  // último recurso: si vino una ruta relativa de tu app, también vale
-  return src;
-}
+// Hooks
+import { useTheme } from "@/hooks/use-theme"
+import { useAnalytics } from "@/hooks/use-analytics"
 
-interface ContentData {
-  settings: {
-    defaultLanguage: string
-    languages: string[]
-    entityType: "firm" | "person"
-    theme?: "light" | "dark" | "auto"
-    enableDarkModeToggle?: boolean
-  }
-  styling: {
-    light: {
-      primaryColor: string
-      secondaryColor: string
-      backgroundColor: string
-      textPrimary: string
-      textSecondary: string
-      borderColor: string
-      cardBackground: string
-      footerBackground: string
-      footerText: string
-    }
-    dark: {
-      primaryColor: string
-      secondaryColor: string
-      backgroundColor: string
-      textPrimary: string
-      textSecondary: string
-      borderColor: string
-      cardBackground: string
-      footerBackground: string
-      footerText: string
-    }
-    fontFamily: string
-    fontSize: {
-      small: string
-      base: string
-      large: string
-      xl: string
-      "2xl": string
-      "3xl": string
-      "4xl": string
-    }
-  }
-  analytics: {
-    visitorCount: number
-    visitorLocations: string[]
-    pageClicks: Record<string, number>
-    contactClicks: Record<string, number>
-  }
-  content: {
-    [key: string]: {
-      header: {
-        logoText: string
-        menuItems: Array<{ label: string; anchor: string }>
-      }
-      hero: {
-        backgroundImage: string
-        title: string
-        subtitle: string
-        features: Array<{
-          icon: string
-          title: string
-          description: string
-          buttonText: string
-          buttonLink: string
-        }>
-      }
-      about: {
-        title: string
-        mission: string
-        values: string
-        buttonText: string
-        buttonLink: string
-      }
-      person: {
-        photo: string
-        name: string
-        title: string
-        bio: string
-        experience: Array<{
-          dateRange: string
-          role: string
-          details: string
-        }>
-        careerHighlights: string[]
-        experienceTitle: string
-        highlightsTitle: string
-        experienceButton: string
-        learnMoreButton: string
-      }
-      consultation: {
-        title: string
-        subtitle: string
-        icon: string
-        contactInfo: {
-          address: string
-          phone: string
-          hours: string
-          email: string
-        }
-      }
-      services: {
-        title: string
-        items: Array<{
-          icon: string
-          title: string
-          description: string
-          buttonText: string
-          buttonLink: string
-        }>
-      }
-      team: {
-        title: string
-        members: Array<{
-          photo: string
-          name: string
-          role: string
-          bioLink: string
-          bioButton: string
-        }>
-      }
-      cases: {
-        title: string
-        items: Array<{
-          caseTitle: string
-          description: string
-          detailsLink: string
-          detailsButton: string
-        }>
-      }
-      contact: {
-        title: string
-        formFields: Array<{
-          label: string
-          type: string
-          name: string
-          placeholder: string
-        }>
-        submitButtonText: string
-        location: {
-          embedMapUrl: string
-        }
-        details: {
-          address: string
-          phone: string
-          email: string
-          hours: string
-        }
-      }
-      footer: {
-        quickLinks: Array<{ label: string; anchor: string }>
-        resources: Array<{ label: string; url: string }>
-        languageSelector: string
-        copyright: string
-      }
-      ui: {
-        entityToggle: {
-          firmLabel: string
-          personLabel: string
-          switchToFirm: string
-          switchToPerson: string
-        }
-      }
-      socialMedia: {
-        title: string
-        networks: Array<{
-          name: string
-          url: string
-          icon: string
-        }>
-        contactButton: string
-        contactText: string
-      }
-    }
-  }
-}
+// Components
+import { Header } from "@/components/sections/header/header"
+import { HeroSection } from "@/components/sections/hero/hero-section"
+import { AboutSection } from "@/components/sections/about-section"
+import { PersonSection } from "@/components/sections/person-section"
+import { ExperienceSection } from "@/components/sections/experience-section"
+import { ConsultationSection } from "@/components/sections/consultation-section"
+import { ServicesSection } from "@/components/sections/services/services-section"
+import { TeamSection } from "@/components/sections/team/team-section"
+import { CasesSection } from "@/components/sections/cases-section"
+import { ContactSection } from "@/components/sections/contact/contact-section"
+import { SocialMediaSection } from "@/components/sections/social-media-section"
+import { Footer } from "@/components/sections/footer"
+import { scrollToSection, getFilteredMenuItems } from "@/lib/navigation-utils"
+import { ApiService } from "@/services/api-service"
+
+// Types and Constants
+import type { ContentData, EntityType, Language } from "@/types"
 
 export default function DixitLawTemplate() {
+  // State
   const [content, setContent] = useState<ContentData | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [currentLanguage, setCurrentLanguage] = useState("es")
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const [entityType, setEntityType] = useState<"firm" | "person">("firm")
-  const [isDark, setIsDark] = useState(true)
+  const [currentLanguage, setCurrentLanguage] = useState<Language>("es")
+  const [entityType, setEntityType] = useState<EntityType>("firm")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Hooks
+  const { isDark, toggleTheme, setTheme } = useTheme()
+  const { incrementVisitorCount, trackPageClick, trackContactClick } = useAnalytics()
+
+  // Refs
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
+  // URL params
   const searchParams = useSearchParams()
   const code = searchParams.get("code")
 
-  // 0) Arranca el tema lo antes posible leyendo localStorage / sistema
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark") {
-      setIsDark(true);
-      return;
-    }
-    if (saved === "light") {
-      setIsDark(false);
-      return;
-    }
-
-    // "auto" (o sin preferencia guardada): sigue el sistema
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(mq.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    // soporta navegadores viejos/nuevos
-    mq.addEventListener?.("change", handler);
-    // @ts-ignore
-    mq.addListener?.(handler);
-
-    return () => {
-      mq.removeEventListener?.("change", handler);
-      // @ts-ignore
-      mq.removeListener?.(handler);
-    };
-  }, []);
-
-  // 1) Carga de contenido desde API (sin pisar preferencia guardada)
+  // Load content from API
   useEffect(() => {
     if (!code) {
-      setError("Código de perfil no proporcionado");
-      setLoading(false);
-      return;
+      setError("Código de perfil no proporcionado")
+      setLoading(false)
+      return
     }
 
-    let cancelled = false;
+    let cancelled = false
 
-    (async () => {
+    const loadContent = async () => {
       try {
-        const res = await fetch(`https://server-advocate.vercel.app/lawyers/${code}`);
-        if (!res.ok) {
-          if (res.status === 404) throw new Error("Perfil no encontrado");
-          throw new Error("Error al cargar el perfil");
+        const data = await ApiService.loadProfile(code)
+        if (cancelled) return
+
+        setContent(data)
+        setEntityType(data.settings.entityType)
+        setCurrentLanguage(data.settings.defaultLanguage)
+
+        // Apply theme from backend if user hasn't set preference
+        const stored = typeof window !== "undefined" ? localStorage.getItem("theme") : null
+        if (!stored) {
+          setTheme(data.settings.theme)
         }
 
-        const { data }: { data: ContentData } = await res.json();
-        if (cancelled) return;
-
-        setContent(data);
-        setEntityType(data.settings.entityType);
-        setCurrentLanguage(data.settings.defaultLanguage);
-
-        // Sólo aplica la preferencia del backend si el usuario NO ha elegido antes
-        const saved = typeof window !== "undefined" ? localStorage.getItem("theme") : null;
-        if (!saved) {
-          if (data.settings.theme === "dark") setIsDark(true);
-          else if (data.settings.theme === "light") setIsDark(false);
-          else if (data.settings.theme === "auto") {
-            const mq = window.matchMedia("(prefers-color-scheme: dark)");
-            setIsDark(mq.matches);
-          }
-        }
-
-        incrementVisitorCount();
+        incrementVisitorCount()
       } catch (err: any) {
-        console.error("Error loading content:", err);
-        setError(err.message || "Error al cargar el perfil");
+        console.error("Error loading content:", err)
+        setError(err.message || "Error al cargar el perfil")
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setLoading(false)
       }
-    })();
+    }
+
+    loadContent()
 
     return () => {
-      cancelled = true;
-    };
-  }, [code]);
+      cancelled = true
+    }
+  }, [code, setTheme, incrementVisitorCount])
 
-  // 2) Intersection Observer para las animaciones
+  // Intersection Observer for animations
   useEffect(() => {
-    const obs = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("visible");
-        });
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible")
+          }
+        })
       },
-      { threshold: 0.1 }
-    );
+      { threshold: 0.1 },
+    )
 
-    const animateElements = document.querySelectorAll(".animate-section");
-    animateElements.forEach((el) => obs.observe(el));
+    const animateElements = document.querySelectorAll(".animate-section")
+    animateElements.forEach((el) => observer.observe(el))
 
-    return () => obs.disconnect();
-  }, [content, currentLanguage]);
+    return () => observer.disconnect()
+  }, [content, currentLanguage])
 
-  // 3) Toggle de tema: guarda "dark"/"light" (no "auto")
-  const toggleTheme = () => {
-    setIsDark((prev) => {
-      const next = !prev;
-      localStorage.setItem("theme", next ? "dark" : "light");
-      return next;
-    });
-  };
-  const incrementVisitorCount = () => {
-    console.log("Analytics: Visitor count incremented")
+  // Handlers
+  const handleLanguageChange = (lang: Language) => {
+    setCurrentLanguage(lang)
   }
 
-  const trackPageClick = (section: string) => {
-    console.log(`Analytics: Page click - ${section}`)
+  const toggleEntityType = () => {
+    setEntityType((prev) => {
+      const next = prev === "firm" ? "person" : "firm"
+      setContent((prevContent) =>
+        prevContent ? { ...prevContent, settings: { ...prevContent.settings, entityType: next } } : prevContent,
+      )
+      return next
+    })
   }
 
-  const trackContactClick = (type: string) => {
-    console.log(`Analytics: Contact click - ${type}`)
+  const handleScrollToSection = (anchor: string) => {
+    scrollToSection(anchor, setMobileMenuOpen)
   }
 
-
+  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -359,6 +138,7 @@ export default function DixitLawTemplate() {
     )
   }
 
+  // Error state
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -371,6 +151,7 @@ export default function DixitLawTemplate() {
     )
   }
 
+  // No content state
   if (!content) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -396,59 +177,8 @@ export default function DixitLawTemplate() {
     )
   }
 
-  function getFilteredMenuItems() {
-    if (!currentContent) return [];
-    // If entityType is "firm", show all menu items except "person" section
-    // If entityType is "person", show all menu items except "about" and "team"
-    return currentContent.header.menuItems.filter((item) => {
-      if (entityType === "firm") {
-        // Hide "person" section in firm mode
-        return item.anchor !== "#person";
-      } else {
-        // Hide "about" and "team" sections in person mode
-        return item.anchor !== "#about" && item.anchor !== "#team";
-      }
-    });
-  }
-
-  function scrollToSection(anchor: string): void {
-    if (!anchor) return;
-    // If anchor starts with "#", scroll to element with that id
-    if (anchor.startsWith("#")) {
-      const el = document.getElementById(anchor.slice(1));
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    } else if (/^https?:\/\//.test(anchor)) {
-      // If it's a full URL, navigate
-      window.location.href = anchor;
-    } else {
-      // Otherwise, treat as a relative path or anchor
-      window.location.hash = anchor;
-    }
-    setMobileMenuOpen(false);
-  }
-
-  // Reemplaza la versión que lanza Error por esta:
-  const toggleEntityType = () => {
-    setEntityType(prev => {
-      const next = prev === "firm" ? "person" : "firm";
-      // reflejar el cambio también en content.settings.entityType
-      setContent(prevContent =>
-        prevContent
-          ? { ...prevContent, settings: { ...prevContent.settings, entityType: next } }
-          : prevContent
-      );
-      return next;
-    });
-  };
-// Reutilizable en todo el componente:
-const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white";
-
-  // Fix: Add handleLanguageChange function
-  const handleLanguageChange = (lang: string) => {
-    setCurrentLanguage(lang);
-  };
+  // CSS Variables and styling
+  const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white"
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDark ? "dark" : ""}`}>
@@ -473,12 +203,6 @@ const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90
           --font-size-2xl: ${content.styling.fontSize["2xl"]};
           --font-size-3xl: ${content.styling.fontSize["3xl"]};
           --font-size-4xl: ${content.styling.fontSize["4xl"]};
-          --on-bg: ${isDark ? content.styling.dark.textPrimary : content.styling.light.textPrimary};
-          --on-card: ${isDark ? content.styling.dark.textPrimary : content.styling.light.textPrimary};
-          --on-muted: ${isDark ? content.styling.dark.textSecondary : content.styling.light.textSecondary};
-          --on-primary: #ffffff; /* texto sobre botones primarios */
-          --hero-overlay: rgba(0,0,0,0.55);     /*  overlay consistente */
-          --text-on-hero: #ffffff;  
         }
         
         * {
@@ -522,65 +246,6 @@ const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90
           padding: 0 1rem;
         }
         
-        .grid-3 {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 24px;
-        }
-        
-        .grid-2 {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 16px;
-        }
-        
-        .grid-1 {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 16px;
-        }
-        
-        @media (max-width: 768px) {
-          .grid-3, .grid-2 {
-            grid-template-columns: 1fr;
-          }
-        }
-        
-        .btn-primary {
-          background-color: var(--primary-color);
-          color: white;
-          padding: 0.75rem 1.5rem;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: transform 0.2s ease, filter 0.2s ease;
-          font-weight: 600;
-          font-size: var(--font-size-base);
-        }
-        
-        .btn-primary:hover {
-          transform: scale(1.05);
-          filter: brightness(1.1);
-        }
-        
-        .btn-secondary {
-          background-color: transparent;
-          color: var(--primary-color);
-          border: 1px solid var(--primary-color);
-          padding: 0.5rem 1rem;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-          font-weight: 600;
-          font-size: var(--font-size-base);
-        }
-        
-        .btn-secondary:hover {
-          transform: scale(1.05);
-          background-color: var(--primary-color);
-          color: white;
-        }
-        
         .animate-section {
           opacity: 0;
           transform: translateY(20px);
@@ -592,45 +257,8 @@ const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90
           transform: translateY(0);
         }
         
-        .card, .case-card, .team-member, .experience-item {
-          background-color: var(--card-bg);
-          border: 1px solid var(--border);
-          border-radius: 8px;
-          padding: 1rem;
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out, background-color 0.3s ease, border-color 0.3s ease;
-        }
-        
-        .input-field {
-          width: 100%;
-          background-color: var(--card-bg);
-          border: 1px solid var(--border);
-          border-radius: 4px;
-          padding: 0.5rem;
-          color: var(--text-primary);
-          margin-bottom: 1rem;
-          transition: background-color 0.3s ease, border-color 0.3s ease;
-          font-size: var(--font-size-base);
-        }
-        
-        .input-field::placeholder {
-          color: var(--text-secondary);
-        }
-        
-        .avatar {
-          border-radius: 50%;
-          width: 150px;
-          height: 150px;
-          object-fit: cover;
-          margin-bottom: 0.5rem;
-        }
-        
-        .person-avatar {
-          border-radius: 50%;
-          width: 200px;
-          height: 200px;
-          object-fit: cover;
-          border: 4px solid var(--primary-color);
-          margin-bottom: 1rem;
+        .staggered-animation {
+          transition-delay: calc(var(--index) * 0.1s);
         }
         
         #hero {
@@ -697,535 +325,106 @@ const btnPrimary = "bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90
           to   { opacity: 1; transform: translateY(0); }
         }
         
-        .staggered-animation {
-          transition-delay: calc(var(--index) * 0.1s);
+        .person-avatar {
+          border-radius: 50%;
+          width: 200px;
+          height: 200px;
+          object-fit: cover;
+          border: 4px solid var(--primary-color);
+          margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+          .hero-title {
+            font-size: 2rem;
+          }
+          
+          .hero-features {
+            grid-template-columns: 1fr;
+          }
         }
       `}</style>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg)]/90 backdrop-blur-sm border-b border-[var(--border)]">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">{currentContent.header.logoText}</h1>
-
-          {/* Desktop Menu */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {getFilteredMenuItems().map((item, index) => (
-              <button
-                key={index}
-                onClick={() => scrollToSection(item.anchor)}
-                className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors"
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-4">
-            
-
-            {/* Language Toggle */}
-            
-
-            {/* Theme Toggle */}
-            {content.settings.enableDarkModeToggle && (
-              <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-[var(--text-primary)]">
-                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
-            )}
-
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden text-[var(--text-primary)]"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-[var(--bg)]/95 backdrop-blur-sm border-t border-[var(--border)]">
-            <nav className="container mx-auto px-4 py-4 space-y-4">
-              {getFilteredMenuItems().map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => scrollToSection(item.anchor)}
-                  className="block w-full text-left text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors"
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-        )}
-      </header>
+      <Header
+        currentContent={currentContent}
+        entityType={entityType}
+        isDark={isDark}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+        toggleEntityType={toggleEntityType}
+        handleLanguageChange={handleLanguageChange}
+        toggleTheme={toggleTheme}
+        getFilteredMenuItems={() => getFilteredMenuItems(currentContent.header.menuItems, entityType)}
+        scrollToSection={handleScrollToSection}
+        enableDarkModeToggle={content.settings.enableDarkModeToggle}
+      />
 
       {/* Hero Section */}
-      <section
-        id="hero"
-        style={{ backgroundImage: `url(${img(currentContent.hero.backgroundImage)})` }}
-      >
-        <div className="hero-content">
-          <h1 className="hero-title">{currentContent.hero.title}</h1>
-          <p className="hero-subtitle">{currentContent.hero.subtitle}</p>
-
-          {entityType === "firm" ? (
-            <div className="hero-features grid md:grid-cols-3 gap-8 mt-12">
-              {currentContent.hero.features.map((feature, index) => (
-                <Card key={index} className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
-                  <CardContent className="p-6 text-center">
-                    <img
-                      src={img(feature.icon)}
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/j.png" }}
-                      alt={`${feature.title} icon`}
-                      className="w-16 h-16 mx-auto mb-4 filter brightness-0 invert"
-                    />
-
-                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="mb-4 text-white/80">{feature.description}</p>
-                    <Button
-                      onClick={() => scrollToSection(feature.buttonLink)}
-                      className={btnPrimary}
-                    >
-                      {feature.buttonText}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="hero-features">
-              <Button
-                onClick={() => scrollToSection("#experience")}
-                className={`bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white text-lg px-8 py-3`}
-              >
-                {currentContent.person.learnMoreButton}
-              </Button>
-            </div>
-          )}
-        </div>
-      </section>
+      <HeroSection
+        currentContent={currentContent}
+        entityType={entityType}
+        scrollToSection={handleScrollToSection}
+        btnPrimary={btnPrimary}
+      />
 
       {/* About Section (only for firm) */}
       {entityType === "firm" && (
-        <section id="about" className="py-20 bg-[var(--bg)] animate-section">
-          <div className="container mx-auto px-4 text-center max-w-4xl">
-            <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">{currentContent.about.title}</h2>
-            <hr className="w-1/2 mx-auto border-[var(--border)] mb-8" />
-            <p className="text-lg text-[var(--text-secondary)] mb-6 leading-relaxed">{currentContent.about.mission}</p>
-            <p className="text-lg text-[var(--text-secondary)] mb-8 leading-relaxed">{currentContent.about.values}</p>
-            <Button
-              onClick={() => scrollToSection(currentContent.about.buttonLink)}
-              className="bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white"
-            >
-              {currentContent.about.buttonText}
-            </Button>
-          </div>
-        </section>
+        <AboutSection currentContent={currentContent} scrollToSection={handleScrollToSection} btnPrimary={btnPrimary} />
       )}
 
       {/* Person Section (only for person) */}
       {entityType === "person" && (
-        <section id="person" className="py-20 bg-[var(--bg)] animate-section">
-          <div className="container mx-auto px-4 text-center max-w-4xl">
-            <img
-              src={img(currentContent.person.photo)}
-              alt={currentContent.person.name}
-              className="person-avatar mx-auto"
-            />
-
-            <h1 className="text-4xl font-bold text-[var(--text-primary)] mb-2">{currentContent.person.name}</h1>
-            <h2 className="text-xl text-[var(--text-secondary)] mb-6">{currentContent.person.title}</h2>
-            <p className="text-lg text-[var(--text-secondary)] mb-8 leading-relaxed">{currentContent.person.bio}</p>
-            <Button
-              onClick={() => scrollToSection("#experience")}
-              className="bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white"
-            >
-              {currentContent.person.experienceButton}
-            </Button>
-          </div>
-        </section>
+        <PersonSection
+          currentContent={currentContent}
+          scrollToSection={handleScrollToSection}
+          btnPrimary={btnPrimary}
+        />
       )}
 
       {/* Experience Section (only for person) */}
-      {entityType === "person" && (
-        <section id="experience" className="py-20 bg-[var(--bg)] animate-section">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <h2 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-16">
-              {currentContent.person.experienceTitle}
-            </h2>
-
-            <div className="space-y-8 mb-12">
-              {currentContent.person.experience.map((exp, index) => (
-                <div
-                  key={index}
-                  className="experience-item animate-section staggered-animation"
-                  style={{ "--index": index } as React.CSSProperties}
-                >
-                  <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-                    {exp.dateRange}: {exp.role}
-                  </h3>
-                  <p className="text-[var(--text-secondary)]">{exp.details}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="animate-section">
-              <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-6">
-                {currentContent.person.highlightsTitle}
-              </h3>
-              <ul className="space-y-3">
-                {currentContent.person.careerHighlights.map((highlight, index) => (
-                  <li key={index} className="text-[var(--text-secondary)] flex items-start">
-                    <span className="text-[var(--primary-color)] mr-2">•</span>
-                    {highlight}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-      )}
+      {entityType === "person" && <ExperienceSection currentContent={currentContent} />}
 
       {/* Consultation Section */}
-      <section id="consultation" className="py-20 bg-[var(--bg)] animate-section">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-4">
-            {currentContent.consultation.title}
-          </h2>
-          <p className="text-xl text-[var(--text-secondary)] text-center mb-8">
-            {currentContent.consultation.subtitle}
-          </p>
-          
-
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            <div className="flex flex-col items-center text-center">
-              <MapPin className="w-8 h-8 text-[var(--text-primary)] mb-2" />
-              <p className="text-[var(--text-secondary)]">{currentContent.consultation.contactInfo.address}</p>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <Phone className="w-8 h-8 text-[var(--text-primary)] mb-2" />
-              <a
-                href={`tel:${currentContent.consultation.contactInfo.phone}`}
-                className="text-[var(--text-secondary)] hover:text-[var(--primary-color)]"
-                onClick={() => trackContactClick("phone")}
-              >
-                {currentContent.consultation.contactInfo.phone}
-              </a>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <Clock className="w-8 h-8 text-[var(--text-primary)] mb-2" />
-              <p className="text-[var(--text-secondary)]">{currentContent.consultation.contactInfo.hours}</p>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <Mail className="w-8 h-8 text-[var(--text-primary)] mb-2" />
-              <a
-                href={`mailto:${currentContent.consultation.contactInfo.email}`}
-                className="text-[var(--text-secondary)] hover:text-[var(--primary-color)]"
-                onClick={() => trackContactClick("email")}
-              >
-                {currentContent.consultation.contactInfo.email}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ConsultationSection currentContent={currentContent} trackContactClick={trackContactClick} />
 
       {/* Services Section */}
-      <section id="services" className="py-20 bg-[var(--bg)] animate-section">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-16">
-            {currentContent.services.title}
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {currentContent.services.items.map((service, index) => (
-              <Card
-                key={index}
-                className="bg-[var(--card-bg)] border-[var(--border)] animate-section staggered-animation"
-                style={{ "--index": index } as React.CSSProperties}
-              >
-                <CardContent className="p-6">
-                  <img
-                    src={img(service.icon)}
-                    alt={`${service.title} icon`}
-                    className="w-12 h-12 mb-4"
-                  />
-
-                  <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">{service.title}</h3>
-                  <p className="text-[var(--text-secondary)] mb-6">{service.description}</p>
-                  <Button
-                    onClick={() => scrollToSection(service.buttonLink)}
-                    className={btnPrimary}
-                  >
-                    {service.buttonText}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ServicesSection
+        currentContent={currentContent}
+        scrollToSection={handleScrollToSection}
+        btnPrimary={btnPrimary}
+      />
 
       {/* Team Section (only for firm) */}
       {entityType === "firm" && (
-        <section id="team" className="py-20 bg-[var(--bg)] animate-section">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-16">
-              {currentContent.team.title}
-            </h2>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {currentContent.team.members.map((member, index) => (
-                <Card
-                  key={index}
-                  className="bg-[var(--card-bg)] border-[var(--border)] text-center animate-section staggered-animation"
-                  style={{ "--index": index } as React.CSSProperties}
-                >
-                  <CardContent className="p-6">
-                    <img
-                      src={img(member.photo)}
-                      alt={member.name}
-                      className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                    />
-
-                    <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">{member.name}</h3>
-                    <p className="text-[var(--text-secondary)] mb-4 text-sm">{member.role}</p>
-                    <Button
-                      onClick={() => trackPageClick("team")}
-                      className={btnPrimary}
-                    >
-                      {member.bioButton}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
+        <TeamSection currentContent={currentContent} trackPageClick={trackPageClick} btnPrimary={btnPrimary} />
       )}
 
       {/* Cases Section */}
-      <section id="cases" className="py-20 bg-[var(--bg)] animate-section">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-16">
-            {currentContent.cases.title}
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {currentContent.cases.items.map((caseItem, index) => (
-              <Card
-                key={index}
-                className="bg-[var(--card-bg)] border-[var(--border)] animate-section staggered-animation"
-                style={{ "--index": index } as React.CSSProperties}
-              >
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">{caseItem.caseTitle}</h3>
-                  <p className="text-[var(--text-secondary)] mb-6">{caseItem.description}</p>
-                  <Button
-                    onClick={() => trackPageClick("cases")}
-                    className={btnPrimary}
-                  >
-                    {caseItem.detailsButton}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CasesSection
+        currentContent={currentContent}
+        scrollToSection={handleScrollToSection}
+        trackPageClick={trackPageClick}
+        btnPrimary={btnPrimary}
+      />
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-[var(--bg)] animate-section">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-16">
-            {currentContent.contact.title}
-          </h2>
-
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Form */}
-            <Card className="bg-[var(--card-bg)] border-[var(--border)] animate-section">
-              <CardContent className="p-6">
-                <form className="space-y-6">
-                  {currentContent.contact.formFields.map((field, index) => (
-                    <div key={index}>
-                      <Label htmlFor={field.name} className="text-[var(--text-primary)]">
-                        {field.label}
-                      </Label>
-                      {field.type === "textarea" ? (
-                        <Textarea
-                          id={field.name}
-                          name={field.name}
-                          placeholder={field.placeholder}
-                          className="bg-[var(--card-bg)] border-[var(--border)] text-[var(--text-primary)]"
-                        />
-                      ) : (
-                        <Input
-                          type={field.type}
-                          id={field.name}
-                          name={field.name}
-                          placeholder={field.placeholder}
-                          className="bg-[var(--card-bg)] border-[var(--border)] text-[var(--text-primary)]"
-                        />
-                      )}
-                    </div>
-                  ))}
-                  <Button
-                    type="submit"
-                    onClick={() => trackPageClick("contact")}
-                    className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white"
-                  >
-                    {currentContent.contact.submitButtonText}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Contact Info and Map */}
-            <div className="space-y-8 animate-section">
-              <Card className="bg-[var(--card-bg)] border-[var(--border)]">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-[var(--text-primary)]" />
-                    <p className="text-[var(--text-secondary)]">{currentContent.contact.details.address}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-[var(--text-primary)]" />
-                    <a
-                      href={`tel:${currentContent.contact.details.phone}`}
-                      className="text-[var(--text-secondary)] hover:text-[var(--primary-color)]"
-                      onClick={() => trackContactClick("phone")}
-                    >
-                      {currentContent.contact.details.phone}
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-[var(--text-primary)]" />
-                    <a
-                      href={`mailto:${currentContent.contact.details.email}`}
-                      className="text-[var(--text-secondary)] hover:text-[var(--primary-color)]"
-                      onClick={() => trackContactClick("email")}
-                    >
-                      {currentContent.contact.details.email}
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-[var(--text-primary)]" />
-                    <p className="text-[var(--text-secondary)]">{currentContent.contact.details.hours}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Map */}
-              <div className="h-64 md:h-80 rounded-lg overflow-hidden">
-                <iframe
-                  src={currentContent.contact.location.embedMapUrl}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ContactSection currentContent={currentContent} trackPageClick={trackPageClick} />
 
       {/* Social Media Section */}
-      <section id="social-media" className="py-16 bg-[var(--primary-color)]/10 animate-section">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">{currentContent.socialMedia.title}</h2>
-
-          <div className="flex justify-center gap-8 mb-10">
-            {currentContent.socialMedia.networks.map((network, index) => (
-              <a
-                key={index}
-                href={network.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--text-primary)] hover:text-[var(--primary-color)] transition-colors transform hover:scale-110"
-                aria-label={network.name}
-              >
-                {network.icon === "facebook" && <Facebook size={32} />}
-                {network.icon === "twitter" && <Twitter size={32} />}
-                {network.icon === "linkedin" && <Linkedin size={32} />}
-                {network.icon === "instagram" && <Instagram size={32} />}
-                {network.icon === "youtube" && <Youtube size={32} />}
-              </a>
-            ))}
-          </div>
-
-          <div className="max-w-2xl mx-auto">
-            <p className="text-[var(--text-secondary)] text-lg mb-6">{currentContent.socialMedia.contactText}</p>
-            <Button
-              onClick={() => scrollToSection("#contact")}
-              className="bg-[var(--primary-color)] hover:bg-[var(--primary-color)]/90 text-white px-8 py-3 text-lg"
-            >
-              {currentContent.socialMedia.contactButton}
-            </Button>
-          </div>
-        </div>
-      </section>
+      <SocialMediaSection
+        currentContent={currentContent}
+        scrollToSection={handleScrollToSection}
+        trackPageClick={trackPageClick}
+        btnPrimary={btnPrimary}
+      />
 
       {/* Footer */}
-      <footer className="bg-[var(--footer-bg)] text-[var(--footer-text)] py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                {currentContent.footer.quickLinks.map((link, index) => (
-                  <li key={index}>
-                    <button
-                      onClick={() => scrollToSection(link.anchor)}
-                      className="text-[var(--primary-color)] hover:text-white transition-colors"
-                    >
-                      {link.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2">
-                {currentContent.footer.resources.map((resource, index) => (
-                  <li key={index}>
-                    <a href={resource.url} className="text-[var(--primary-color)] hover:text-white transition-colors">
-                      {resource.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">{currentContent.footer.languageSelector}</h4>
-              <select
-                value={currentLanguage}
-                onChange={(e) => handleLanguageChange(e.target.value)}
-                className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-1"
-              >
-                <option value="es">Español</option>
-                <option value="en">English</option>
-              </select>
-            </div>
-          </div>
-
-          <hr className="border-gray-700 mb-8" />
-
-          <div className="text-center text-sm text-gray-400">
-            <p>{currentContent.footer.copyright}</p>
-          </div>
-        </div>
-      </footer>
+      <Footer
+        currentContent={currentContent}
+        scrollToSection={handleScrollToSection}
+        handleLanguageChange={handleLanguageChange}
+      />
     </div>
   )
 }
